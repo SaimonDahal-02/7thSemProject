@@ -1,0 +1,19 @@
+{% if user.is_authenticated %}
+			{% if progress %}
+				<p>Progress: {{ progress.page_number }} / {{ book.page_count }}</p>
+				<hr>
+				<div class="progress">
+					<div class="progress-bar" role="progressbar" style="width: {{ completion_percentage }}%;" aria-valuenow="{{ completion_percentage }}" aria-valuemin="0" aria-valuemax="100">
+					  <span class="progress-text">{{ completion_percentage|floatformat:2 }}%</span>
+					</div>
+				  </div>
+				<form method="post" action="{% url 'book:book-detail' book.id %}">
+					{% csrf_token %}
+					<input type="hidden" name="page_number" value="{{ progress.page_number }}">
+					<input type="number" name="new_page_number" min="0" max="{{ book.page_count }}" value="{{ progress.page_number }}">
+            		<button type="submit" name="update_page_number">Update</button>
+					<button type="submit" name="mark_completed">Completed</button>
+					<button type="submit" name="mark_dropped">Drop Book</button>
+				</form>
+			{% endif %}
+{% endif %}

@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<h1>Books:</h1>
+	<style>
+		.book-container {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: space-between;
+			margin: 20px 0;
+		}
+		
+		.book {
+			width: 30%;
+			margin-bottom: 20px;
+			padding: 20px;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+			box-shadow: 2px 2px 5px #ccc;
+			text-align: center;
+		}
+		
+		.book-title {
+            text-decoration: underline;
+			font-size: 18px;
+			font-weight: bold;
+			margin-bottom: 10px;
+		}
+
+		.book-publisher, .book-published-year {
+			font-size: 16px;
+			margin-bottom: 10px; 
+		}
+		
+		.book-author {
+			font-size: 14px;
+			color: #666;
+		}
+        .genre-list {
+            display: flex;
+            flex-wrap: wrap;
+          }
+          
+          .genre {
+            margin: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          }
+          
+          .book-row {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            margin-top: 10px;
+          }
+          
+          .book {
+            width: 150px;
+            margin-right: 15px;
+          }
+          
+          .book img {
+            width: 100%;
+            height: auto;
+          }
+          
+          .book-title {
+            font-size: 14px;
+            margin-top: 5px;
+          }
+          
+          .book-author {
+            font-size: 12px;
+            color: #888;
+          }
+	</style>
+  <div class="container">
+    <div class="row">
+        {% for book in books %}
+        <div class="col-md-4">
+            <!-- Display each book -->
+            <div class="book">
+                <div><img class="book-image" src="{{ book.image_local.url }}"></div>
+                <a href="{% url 'books:book-detail' book.pk %}">
+                    <h3 class="book-title">{{ book.title }}</h3>
+                </a>
+                <div class="book-publisher">{{ book.publisher }}</div>
+                <div class="book-published-year">{{ book.publication_year }}</div>
+                <div class="book-author">{{ book.author.all|join:", " }}</div>
+            </div>
+        </div>
+        {% if forloop.counter|divisibleby:3 and not forloop.last %}
+    </div>
+    <div class="row">
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+            <!-- Pagination links -->
+            <div class="pagination">
+                {% if is_paginated %}
+                    <span class="step-links">
+                        {% if page_obj.has_previous %}
+                            <a href="?page=1">&laquo; first</a>
+                            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                        {% endif %}
+
+                        <span class="current-page">{{ page_obj.number }}</span>
+
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}">next</a>
+                            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                        {% endif %}
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="random-genres">
+            <h2>Random Genres</h2>
+            <div class="genre-list">
+              {% for genre, books in genre_books.items %}
+                <div class="genre">
+                  <h3>{{ genre.name }}</h3>
+                  <div class="book-row">
+                    {% for book in books %}
+                      <div class="book">
+                        <img src="{{ book.image_local.url }}" alt="{{ book.title }}">
+                        <a href="{% url 'books:book-detail' book.pk %}"><p class="book-title">{{ book.title }}</p></a>
+                        <p class="book-author">{{ book.author.all|join:", " }}</p>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+
+        <div class="col-md-4">
+            <h2>Latest Reviews</h2>
+            {% for review in latest_reviews %}
+                <div class="review">
+                    <h3>{{ review.book.title }}</h3>
+                    <img class="book-image" src="{{ review.book.image_local.url }}" alt="{{ review.book.title }}">
+                    <p>{{ review.content|truncatechars:100 }}</p>
+                    <a href="{% url 'books:book-detail' review.book.pk %}#review{{ review.pk }}">[...more]</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Your existing code -->
+
+{% endblock content %}

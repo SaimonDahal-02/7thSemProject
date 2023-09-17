@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Book Notes</h1>
+
+  <ul>
+    {% for booknote in booknotes %}
+      <li>
+        <a href="{% url 'book:view_booknote' book_id=booknote.book.id pk=booknote.id %}">{{ booknote.book.title }}</a>
+      </li>
+    {% empty %}
+      <li>No book notes available.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

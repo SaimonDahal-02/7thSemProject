@@ -1,0 +1,377 @@
+  {% extends 'base.html' %}
+  {% load custom_filters %}
+  {% block content %}
+  <div class="container custom-width">
+  <h1 id="book-title">{{ booknote.book.title }}</h1>
+  <i><strong class="book-authors-label">Author • </strong>
+    {% for author in booknote.book.author.all %}
+        {{ author.name }}
+        {% if not forloop.last %}, {% endif %}
+    {% endfor %}
+    
+  </i>  
+  <div class="row">
+      <div class="col-md-3 d-flex flex-column mb-4">
+        <div class="card d-flex align-items-stretch" style=" height:543px;">
+          <div class="all-rating"><strong class="heading" style="padding-top: 13px; margin-bottom: 1px;">Setting</strong>
+            <div><i class="examples">World-building, lore, atmosphere, etc.</i></div></div>
+            <svg aria-hidden="true" focusable="false" class="rating">
+              {% for star in "☆☆☆☆☆" %}
+                {% if forloop.counter <= booknote.settings_rating %}
+                  <use xlink:href="#stars-full-star" />
+                {% else %}
+                  <use xlink:href="#stars-empty-star" />
+                {% endif %}
+              {% endfor %}
+            </svg>
+          <!-- Plot Rating -->
+          <div class="all-rating"><strong class="heading" style="margin-bottom: 1px;">Plot</strong>
+          <div><i class="examples">Structure, arcs, pacing, climax, tension, resolution, etc.</i></div></div>
+            <svg aria-hidden="true" focusable="false" class="rating">
+              {% for star in "☆☆☆☆☆" %}
+                {% if forloop.counter <= booknote.plot_rating %}
+                  <use xlink:href="#stars-full-star" />
+                {% else %}
+                  <use xlink:href="#stars-empty-star" />
+                {% endif %}
+              {% endfor %}
+            </svg>
+        
+          <!-- Character Rating -->
+          <div class="all-rating"><strong style="margin-bottom: 1px;" class="heading">Characters</strong>
+          <div><i class="examples">Development, relatability, depth, dynamics, arcs, etc.</i></div></div>
+          <svg aria-hidden="true" focusable="false" class="rating">
+            {% for star in "☆☆☆☆☆" %}
+              {% if forloop.counter <= booknote.character_rating %}
+                <use xlink:href="#stars-full-star" />
+              {% else %}
+                <use xlink:href="#stars-empty-star" />
+              {% endif %}
+            {% endfor %}
+          </svg>
+        
+          <!-- Style Rating -->
+          <div class="all-rating"><strong class="heading" style="margin-bottom: 1px;">Style</strong>
+          <div><i class="examples">Writing, voice, point of view, narrator, etc.</i></div></div>
+          <svg aria-hidden="true" focusable="false" class="rating">
+            {% for star in "☆☆☆☆☆" %}
+              {% if forloop.counter <= booknote.style_rating %}
+                <use xlink:href="#stars-full-star" />
+              {% else %}
+                <use xlink:href="#stars-empty-star" />
+              {% endif %}
+            {% endfor %}
+          </svg>
+        
+          <!-- Engagement Rating -->
+          <div class="all-rating"><strong class="heading" style="margin-bottom: 1px;">Engagement</strong>
+          <div><i class="examples">Immersion, Enjoyment, themes, tropes, etc.</i></div></div>
+          <svg aria-hidden="true" focusable="false" class="rating">
+            {% for star in "☆☆☆☆☆" %}
+              {% if forloop.counter <= booknote.engagement_rating %}
+                <use xlink:href="#stars-full-star" />
+              {% else %}
+                <use xlink:href="#stars-empty-star" />
+              {% endif %}
+            {% endfor %}
+          </svg>
+          <div class="dotted-line"></div>
+          <!-- Overall Rating -->
+          <div class="all-rating"><strong style="margin-top: 7px;" class="heading">Overall rating</strong></div>
+          <svg aria-hidden="true" focusable="false" class="rating" width="100" height="100" id="overall-bigger" class="justify-content-center">
+            {% for star in "☆☆☆☆☆" %}
+              {% if forloop.counter <= booknote.overall_rating %}
+                <use xlink:href="#stars-full-star" />
+              {% else %}
+                <use xlink:href="#stars-empty-star" />
+              {% endif %}
+            {% endfor %}
+          </svg>
+        </div>
+      </div>
+      <div class="col-md-6 d-flex flex-column mb-4">
+        <div class="card d-flex align-items-stretch" style="height:543px;">
+          <h3 class="book-note-section-title heading">Notes:</h3>
+          <div class="card-body" style="overflow: auto; text-align: justify;"><p class="texts" id="thoughts">{{ object.thoughts }}</p></div>
+        </div>        
+      </div>
+      <div class="col-md-3 d-flex flex-column mb-4">
+        <div class="card d-flex align-items-stretch" style="height:543px;">
+          <div class="glow-border">
+            <img src="{{ object.book.image_local.url}}" alt="{{ object.book.title }} Cover" class="fixed-size-image" id="book-image">
+          </div>
+          <div class="card-body">
+            <div class="card-text">
+              <div class="imgsec-padding"><strong class="date-label heading">Start Date</strong> <div class="texts">{% if booknote.start_date %}{{ booknote.start_date|format_date }}{% else %}...{% endif %}</div></div>
+              <div class="imgsec-padding"><strong class="date-label heading">Finish Date</strong> <div class="texts">{% if booknote.finish_date %}{{ booknote.finish_date|format_date }}{% else %}...{% endif %} </div></div>
+              <div class="imgsec-padding"><strong class="heading">Language: </strong><span class="texts">{% if booknote.book.language %}{{ booknote.book.language }}{% else %}...{% endif %}</span></div>
+              <div>
+                <strong class="book-details-label heading">Genre:</strong>
+                <span class="texts">
+                  {% if booknote.book.genres.all %}
+                    {{ booknote.book.genres.all|join:", " }}
+                  {% else %}
+                      ...
+                  {% endif %}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 d-flex flex-column">
+        <div class="card" style="height: 352px;">
+            <strong class="note-label">Quotes to remember</strong>
+          <div class="card-body" style="overflow: auto; text-align: justify;"><div class="card-text">
+            <p id="bottom-thoughts" class="texts">
+              {% if booknote.favorite_quote %}
+                {{ booknote.favorite_quote }}
+              {% else %}
+                ...
+              {% endif %}</p>
+          </div></div>
+        </div>
+      </div>
+      <div class="col-md-6 d-flex flex-column">
+        <div class="row">
+          <!-- First Column Card -->
+          <div class="col-md-6">
+            <div class="card mb-3" style="height: 352px; position: relative;">
+              <strong class="note-label">Surprising Moment</strong>
+              <div class="card-body" style="overflow: auto; text-align: justify;"><p id="bottom-thoughts" class="texts">
+                {% if booknote.surprising_moment %}
+                    {{ booknote.surprising_moment }}
+                {% else %}
+                    ...
+                {% endif %}
+              </p></div>
+              <div class="custom-circle">
+                  <strong class="page-style">page</strong>
+                  <p class="page-num-style texts">
+                    {% if booknote.page_number_of_moment %}
+                      {{ booknote.page_number_of_moment }}
+                    {% else %}
+                      # #
+                    {% endif %}
+                  </p>
+              </div>
+            </div>
+          </div>
+      
+          <!-- Second Column Cards -->
+          <div class="col-md-6">
+            <div class="card" style="height: 166px;">
+              <strong class="note-label">Favorite Characters</strong>
+              <div class="card-body" style="overflow: auto; text-align: justify;"><p id="bottom-thoughts" class="texts">
+                {% if booknote.favorite_characters %}
+                  {{ booknote.favorite_characters }}
+                {% else %}
+                  ...
+                {% endif %}
+              </p></div>
+              <div class="custom-div emoji">
+                ❤️
+              </div>
+            </div>
+            
+            <!-- Nested Card for Least Favorite Characters -->
+            <div class="card" style="height: 166px; margin-top: 20px;">
+              <strong class="note-label">Least Favorite Characters</strong>
+              <div class="card-body" style="overflow: auto; text-align: justify;"><p id="bottom-thoughts" class="texts">
+                {% if booknote.least_favorite_characters %}
+                  {{ booknote.least_favorite_characters }}
+                {% else %}
+                  ...
+                {% endif %}
+              </p></div>
+              <div class="custom-div emoji">
+                🤡
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3 d-flex flex-column">
+        <div class="card" style="height: 352px;">
+          <strong class="note-label">The ending</strong>
+          <div class="card-body" style="overflow: auto; text-align: justify;"><p id="bottom-thoughts" class="texts">
+            {% if booknote.ending_opinion %}
+              {{ booknote.ending_opinion }}
+            {% else %}
+              Liked it? Why? Why not? How should it have ended?
+            {% endif %}
+          </p></div>
+        </div>
+      </div>
+  </div>
+</div>
+<a href="{% url 'books:update_booknote' book_id=booknote.book.id pk=booknote.id %}" class="btn btn-primary">Update Book Note</a>
+<svg id="stars" style="display: none;" version="1.1">
+  <symbol id="stars-empty-star" viewBox="0 0 102 18" fill="#F1E8CA">
+    <path d="M9.5 14.25l-5.584 2.936 1.066-6.218L.465 6.564l6.243-.907L9.5 0l2.792 5.657 6.243.907-4.517 4.404 1.066 6.218" />
+  </symbol>
+  <symbol id="stars-full-star" viewBox="0 0 102 18" fill="#D3A81E">
+    <path d="M9.5 14.25l-5.584 2.936 1.066-6.218L.465 6.564l6.243-.907L9.5 0l2.792 5.657 6.243.907-4.517 4.404 1.066 6.218" />
+  </symbol>
+</svg>
+<style>
+  .container {
+    padding-top: 30px;
+  }
+  .custom-width {
+    max-width: 1596px; /* Adjust the width as needed */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+  h1 {
+    font-family: 'Dancing Script', cursive;
+    font-weight: 600;
+    font-size: 70px;
+    color: #264045;
+  }
+  i {
+    font-family: 'Caveat', cursive;
+    font-size: 25px;
+  }
+  .examples{
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 13px;
+  }
+  /* This is for rating system */
+  use {
+    &:nth-child(2) {
+      transform: translate(20px);
+    }
+    &:nth-child(3) {
+      transform: translate(40px);
+    }
+    &:nth-child(4) {
+      transform: translate(60px);
+    }
+    &:nth-child(5) {
+      transform: translate(80px);
+    }
+  }
+  .rating {
+    display: block;
+    height: 1.25rem;
+    margin-left: -91px;
+    width: 337px;
+    margin-bottom: 3px;
+    margin-top: 8px;
+  }
+  /*------------------------------*/
+
+  /*image css*/
+  .glow-border {
+    width: 9.4375rem;
+    height: 15.5625rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: -2.34rem auto 0;
+    transform: rotate(10deg);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  }
+  .fixed-size-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; 
+  }
+  /*-------------------------------------*/
+
+  /*fonts*/
+  .heading{
+    font-family: 'Mooli', sans-serif;
+  }
+  .note-label{
+    margin-top: 20px;
+    margin-left: 14px;
+    font-family: 'Mooli', sans-serif;
+  }
+  .texts{
+    font-family: 'Nunito Sans', sans-serif;
+  }
+  /*----------------------------------*/
+
+  /*for right side image card*/
+  .imgsec-padding{
+    padding-bottom: 1.375rem;
+  }
+  /*------------------------------*/
+
+  /*rating card*/
+  .all-rating{
+    margin-left: 0.625rem;
+    padding-left: 10px;
+    padding-right: 9px;
+    margin-top: 9px;
+  }
+  .dotted-line{
+    margin-top: 9px;
+    border-bottom: 2px dotted #000;
+  }
+  #overall-bigger{
+    margin-top: 8px;
+    margin-bottom: 0px;
+    padding-left: 174px;
+  }
+  /*-------------------------------*/
+  /*notes*/
+  .book-note-section-title{
+    margin-top: 21px;
+    margin-left: 16px;
+  }
+  #thoughts{
+    font-size: 20px;
+    margin-top: -12px;
+  }
+  #bottom-thoughts{
+    font-size: 17px;
+  }
+  .emoji{
+    position: absolute; 
+    bottom: 4px; 
+    right: 7px; 
+    font-size: 1.5em;
+  }
+  /**/
+  .custom-circle {
+    position: absolute;
+    bottom: 11px;
+    right: 13px;
+    width: 77px;
+    height: 72px;
+    background-color: #bac2cb;
+    color: #fff;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 40px;
+    font-size: 18px;
+    font-weight: bold;
+}
+.page-style{
+  color: #000;
+  font-family: 'Mooli', sans-serif;
+
+}
+.page-num-style{
+  margin-top: -10px;
+  color: #000;
+}
+.card-body::-webkit-scrollbar {
+  width: 0.5rem; /* Adjust the width to control the space reserved for scrollbar */
+}
+
+.card-body::-webkit-scrollbar-thumb {
+  background-color: transparent; /* Make the scrollbar thumb (drag handle) transparent */
+}
+
+.card-body::-webkit-scrollbar-track {
+  background-color: transparent; /* Make the scrollbar track (background) transparent */
+}
+</style>
+{% endblock content %}

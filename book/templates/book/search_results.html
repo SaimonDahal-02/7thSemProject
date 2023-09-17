@@ -1,0 +1,38 @@
+<!-- search_results.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Results</title>
+</head>
+<body>
+    
+    {% if books %}
+        <ul>
+            {% for book in books %}
+            <div class="item">
+                <a href="{% url 'books:book-detail' book.pk %}"><h2>{{ book.title }}</h2></a>
+                <img src="{{ book.image_local.url }}" alt="{{ book.title }}">
+                <p><span class="label">ISBN:</span> {{ book.isbn }}</p>
+                <p>{{book.page_count}}</p>
+                <p>{{book.publication_year}}</p>
+                <p>{{book.description}}</p>
+                <p><span class="label">Genres:</span></p>
+				{% for genre in book.genres.all %}
+					{{ genre.name }}{% if not forloop.last %}, {% endif %}
+				{% endfor %}
+				</p>
+            </div>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No results found.</p>
+        {% if user.is_reviewer %}
+            <a href="{% url 'books:add_book' %}">here</a>
+        {% endif %}
+    {% endif %}
+</body>
+</html>
+{% endblock content %}

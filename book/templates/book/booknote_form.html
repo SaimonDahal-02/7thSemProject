@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<h1>{{ book.title }}</h1>
+<h2>Author: {{ book.author }}</h2>
+<h2>Genre: {{ book.genres.all|join:", " }}</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form | crispy }}
+    <button type="submit">Save</button>
+</form>
+
+{% endblock content %}

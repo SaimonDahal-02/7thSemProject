@@ -1,0 +1,10 @@
+{% extends "base.html" %}  <!-- Use your base template if you have one -->
+{% load crispy_forms_tags %}
+{% block content %}
+  <h2>Add a New Book</h2>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form | crispy }}
+    <button type="submit">Submit</button>
+  </form>
+{% endblock %}
