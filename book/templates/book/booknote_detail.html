@@ -12,9 +12,9 @@
   </i>  
   <div class="row">
       <div class="col-md-3 d-flex flex-column mb-4">
-        <div class="card d-flex align-items-stretch" style=" height:543px;">
+        <div class="card d-flex align-items-stretch" style=" height:543px; background-color:#d7ebee;">
           <div class="all-rating"><strong class="heading" style="padding-top: 13px; margin-bottom: 1px;">Setting</strong>
-            <div><i class="examples">World-building, lore, atmosphere, etc.</i></div></div>
+            <div><i class="examples" style="color: #343a40;">World-building, lore, atmosphere, etc.</i></div></div>
             <svg aria-hidden="true" focusable="false" class="rating">
               {% for star in "☆☆☆☆☆" %}
                 {% if forloop.counter <= booknote.settings_rating %}
@@ -26,7 +26,7 @@
             </svg>
           <!-- Plot Rating -->
           <div class="all-rating"><strong class="heading" style="margin-bottom: 1px;">Plot</strong>
-          <div><i class="examples">Structure, arcs, pacing, climax, tension, resolution, etc.</i></div></div>
+          <div><i class="examples" style="color: #343a40;">Structure, arcs, pacing, climax, tension, resolution, etc.</i></div></div>
             <svg aria-hidden="true" focusable="false" class="rating">
               {% for star in "☆☆☆☆☆" %}
                 {% if forloop.counter <= booknote.plot_rating %}
@@ -39,7 +39,7 @@
         
           <!-- Character Rating -->
           <div class="all-rating"><strong style="margin-bottom: 1px;" class="heading">Characters</strong>
-          <div><i class="examples">Development, relatability, depth, dynamics, arcs, etc.</i></div></div>
+          <div><i class="examples" style="color: #343a40;">Development, relatability, depth, dynamics, arcs, etc.</i></div></div>
           <svg aria-hidden="true" focusable="false" class="rating">
             {% for star in "☆☆☆☆☆" %}
               {% if forloop.counter <= booknote.character_rating %}
@@ -52,7 +52,7 @@
         
           <!-- Style Rating -->
           <div class="all-rating"><strong class="heading" style="margin-bottom: 1px;">Style</strong>
-          <div><i class="examples">Writing, voice, point of view, narrator, etc.</i></div></div>
+          <div><i class="examples" style="color: #343a40;">Writing, voice, point of view, narrator, etc.</i></div></div>
           <svg aria-hidden="true" focusable="false" class="rating">
             {% for star in "☆☆☆☆☆" %}
               {% if forloop.counter <= booknote.style_rating %}
@@ -65,7 +65,7 @@
         
           <!-- Engagement Rating -->
           <div class="all-rating"><strong class="heading" style="margin-bottom: 1px;">Engagement</strong>
-          <div><i class="examples">Immersion, Enjoyment, themes, tropes, etc.</i></div></div>
+          <div><i class="examples" style="color: #343a40;">Immersion, Enjoyment, themes, tropes, etc.</i></div></div>
           <svg aria-hidden="true" focusable="false" class="rating">
             {% for star in "☆☆☆☆☆" %}
               {% if forloop.counter <= booknote.engagement_rating %}
@@ -90,13 +90,13 @@
         </div>
       </div>
       <div class="col-md-6 d-flex flex-column mb-4">
-        <div class="card d-flex align-items-stretch" style="height:543px;">
+        <div class="card d-flex align-items-stretch" style="height:543px; background-color:#d7ebee;">
           <h3 class="book-note-section-title heading">Notes:</h3>
           <div class="card-body" style="overflow: auto; text-align: justify;"><p class="texts" id="thoughts">{{ object.thoughts }}</p></div>
         </div>        
       </div>
       <div class="col-md-3 d-flex flex-column mb-4">
-        <div class="card d-flex align-items-stretch" style="height:543px;">
+        <div class="card d-flex align-items-stretch" style="height:543px; background-color:#d7ebee;">
           <div class="glow-border">
             <img src="{{ object.book.image_local.url}}" alt="{{ object.book.title }} Cover" class="fixed-size-image" id="book-image">
           </div>
@@ -120,7 +120,7 @@
         </div>
       </div>
       <div class="col-md-3 d-flex flex-column">
-        <div class="card" style="height: 352px;">
+        <div class="card" style="height: 352px; background-color:#d7ebee;">
             <strong class="note-label">Quotes to remember</strong>
           <div class="card-body" style="overflow: auto; text-align: justify;"><div class="card-text">
             <p id="bottom-thoughts" class="texts">
@@ -136,7 +136,7 @@
         <div class="row">
           <!-- First Column Card -->
           <div class="col-md-6">
-            <div class="card mb-3" style="height: 352px; position: relative;">
+            <div class="card mb-3" style="height: 352px; position: relative; background-color:#d7ebee;">
               <strong class="note-label">Surprising Moment</strong>
               <div class="card-body" style="overflow: auto; text-align: justify;"><p id="bottom-thoughts" class="texts">
                 {% if booknote.surprising_moment %}
@@ -160,7 +160,7 @@
       
           <!-- Second Column Cards -->
           <div class="col-md-6">
-            <div class="card" style="height: 166px;">
+            <div class="card" style="height: 166px; background-color:#d7ebee;">
               <strong class="note-label">Favorite Characters</strong>
               <div class="card-body" style="overflow: auto; text-align: justify;"><p id="bottom-thoughts" class="texts">
                 {% if booknote.favorite_characters %}
@@ -175,7 +175,7 @@
             </div>
             
             <!-- Nested Card for Least Favorite Characters -->
-            <div class="card" style="height: 166px; margin-top: 20px;">
+            <div class="card" style="height: 166px; margin-top: 20px; background-color:#d7ebee;">
               <strong class="note-label">Least Favorite Characters</strong>
               <div class="card-body" style="overflow: auto; text-align: justify;"><p id="bottom-thoughts" class="texts">
                 {% if booknote.least_favorite_characters %}
@@ -193,7 +193,7 @@
       </div>
       
       <div class="col-md-3 d-flex flex-column">
-        <div class="card" style="height: 352px;">
+        <div class="card" style="height: 352px; background-color:#d7ebee;">
           <strong class="note-label">The ending</strong>
           <div class="card-body" style="overflow: auto; text-align: justify;"><p id="bottom-thoughts" class="texts">
             {% if booknote.ending_opinion %}
@@ -229,11 +229,12 @@
     font-family: 'Dancing Script', cursive;
     font-weight: 600;
     font-size: 70px;
-    color: #264045;
+    color: #dae8eb;
   }
   i {
-    font-family: 'Caveat', cursive;
-    font-size: 25px;
+    font-family: 'Dancing Script', cursive;
+    font-size: 30px;
+    color: #e2e5e9;
   }
   .examples{
     font-family: 'Nunito Sans', sans-serif;
@@ -277,7 +278,7 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   }
   .fixed-size-image {
-    width: 100%;
+    width: 109%;
     height: 100%;
     object-fit: contain; 
   }

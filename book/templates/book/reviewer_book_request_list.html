@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Review Book Requests</h1>
+
+
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<ul>
+    {% for request in book_requests %}
+        <li>
+            {{ request.title }} by {{ request.author }}
+            Requested by: {{ request.user.username }}
+            <form method="post" action="{% url 'book:reviewer_request_list' %}">
+                {% csrf_token %}
+                <input type="hidden" name="request_id" value="{{ request.id }}">
+                <button type="submit">Deny</button>
+            </form>
+        </li>
+    {% empty %}
+        <li>No pending book requests.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

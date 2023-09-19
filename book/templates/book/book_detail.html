@@ -15,13 +15,11 @@
 		h1{
 			font-family: 'Dancing Script', sans-serif;
 		}
-		img{
-			width: 231px;
-			height: 384px;
-		}
+
 		.heading{
 			font-family: 'Mooli', sans-serif;
 		}
+
 		.texts{
 			font-family: 'Nunito Sans', sans-serif;
 		}
@@ -127,42 +125,30 @@
 </head>
 <body>
 	<div class="container mt-5">
-		<div class="card border">
+		<div class="card" style="background-color: #4b6b78; color: #fff;">
 			<div class="row no-gutters">
-				<div class="col-md-4">
-					<div class="text-center">
-						<img src="{{ book.image_local.url }}" alt="{{ book.title }}" class="img-fluid mx-auto">
-						<button id="favorite-button" data-book-id="{{ book.id }}" data-is-favorite="{{ is_favorite }}" type="button" class="btn btn-primary">
-							{% if is_favorite %}
-								Remove from Favorites
-							{% else %}
-								Add to Favorites
-							{% endif %}
-						</button>
-						{% if user.is_authenticated %}
-						{% if progress %}
-							<form method="post" action="{% url 'book:book-detail' book.id %}">
-								{% csrf_token %}
-								<button type="submit" name="mark_completed">Completed</button>
-								<button type="submit" name="mark_dropped">Drop Book</button>
-							</form>
-						{% endif %}
-					{% endif %}
-						{% if user.is_authenticated %}
-							{% with book_note=book|get_booknote:user %}
-							{% if book_note %}
-								<a href="{% url 'book:view_booknote' book_id=book.id pk=book_note.id %}" class="btn btn-primary">View Note</a>
-							{% else %}
-								<a href="{% url 'book:create_booknote' book_id=book.id %}" class="btn btn-primary">Create Note</a>
-							{% endif %}
-							{% endwith %}
-						{% else %}
-							<p>Please log in to create/view notes.</p>
-						{% endif %}
+				<div class="col-md-8">
+					<div class="d-flex flex-column justify-content-center align-items-center h-100">
+						<h1 class="card-title px-3 py-1 my-3" style="font-size: 62px;">{{ book.title }}</h1>
+						<div class="px-3 py-1 my-3">
+							<h5 class="card-title heading">Description:</h5>
+							<p class="card-text texts" style="text-align: justify;">{{ book.description }}</p>
+						</div>
 					</div>
 				</div>
-				<div class="col-md-8">
-					<h1 class="card-title">{{ book.title }}</h1>
+				<div class="col-md-4">
+					<div class="book-img my-4" style="width: 63%; height: 100%; position: relative; left: 50%; top: 20px; transform: translate(-50%, -20px);">
+						<img src="{{ book.image_local.url }}" alt="{{ book.title }}" class="img-fluid mx-auto">
+					</div>
+				</div>                
+			</div>
+		</div>
+	</div>
+	
+	<div class="container mt-3">
+		<div class="card" style="background-color: #4b6b78; color:#fff;">
+			<div class="row no-gutters">
+				<div class="col-md-6 p-3">
 					<p class="card-text"><strong class="heading">ISBN:</strong>
 						<span class="texts">{% if book.isbn %}
 							{{ book.isbn }}
@@ -247,23 +233,56 @@
 						{% endif %}
 					{% endif %}
 				</div>
+				<div class="col-md-6 text-center mt-3">
+					<div class="mb-3">
+						<button id="favorite-button" data-book-id="{{ book.id }}" data-is-favorite="{{ is_favorite }}" type="button" class="btn btn-primary">
+							{% if is_favorite %}
+								Remove from Favorites
+							{% else %}
+								Add to Favorites
+							{% endif %}
+						</button>
+					</div>
+					{% if user.is_authenticated %}
+						{% if progress %}
+							<div class="mb-3">
+								<form method="post" action="{% url 'book:book-detail' book.id %}">
+									{% csrf_token %}
+									<button type="submit" name="mark_completed" class="btn btn-success">Mark as Completed</button>
+									<button type="submit" name="mark_dropped" class="btn btn-warning">Mark as Dropped</button>
+								</form>
+							</div>
+						{% endif %}
+					{% endif %}
+					{% if user.is_authenticated %}
+						{% with book_note=book|get_booknote:user %}
+							{% if book_note %}
+								<div class="mb-3">
+									<a href="{% url 'book:view_booknote' book_id=book.id pk=book_note.id %}" class="btn btn-info">View Note</a>
+								</div>
+							{% else %}
+								<div class="mb-3">
+									<a href="{% url 'book:create_booknote' book_id=book.id %}" class="btn btn-primary">Create Note</a>
+								</div>
+							{% endif %}
+						{% endwith %}
+					{% else %}
+						<p>Please log in to create/view notes.</p>
+					{% endif %}
+				</div>
+				
+				
 			</div>
-			<div class="mb-2 p-3"> 
-				<h3 class="card-title heading">Description:</h3>
-				<p class="card-text texts" style="text-align: justify;">{{ book.description }}</p>
-			</div>
-			{% if user.is_reviewer %}
-			<a href="{% url 'book:book-update' book.id %}">You can edit the book here</a>
-			{% endif %}
 		</div>
 	</div>
+
 	<div class="container mt-5">
 		<form id="review-form" action="{% url 'book:book-detail' book.id %}" method="POST">
 			{% csrf_token %}
 			<div class="form-group">
-				{{ form | crispy }}
+				<textarea id="review-content" name="content" class="form-control form-control-lg" placeholder="Write your review here..." rows="2" style="resize: none;"></textarea>
 			</div>
-			<button type="submit" class="btn btn-primary">Submit</button>
+			<button type="submit" class="btn btn-primary btn-lg">Submit</button>
 		</form>
 		<div class="review-list">
             {% for review in book.reviews.all %}

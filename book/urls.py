@@ -18,6 +18,12 @@ from . views import (
     BookNoteDetailView, 
     BookNoteListView,
     
+    BookRequestListView,
+    BookRequestFormView,
+    ReviewerBookRequestListView,
+    
+    NotificationListView,
+    
     favorite_add, 
     change_role_to_reviewer, 
 )
@@ -44,6 +50,11 @@ urlpatterns = [
     path('fav/<int:id>/', favorite_add, name='favorite_add'),
     path('add/', BookCreateView.as_view(), name='add_book'),
     
+    path('book_request_list/', BookRequestListView.as_view(), name='request_list'),
+    path('request/', BookRequestFormView.as_view(), name='request_form'),
+    path('reviewer-requests/', ReviewerBookRequestListView.as_view(), name='reviewer_request_list'),  
+    
+    path('notifications/', NotificationListView.as_view(), name='notification_list'),
     # path('review/edit/<int:review_id>/', edit_review, name='edit_review'),
     # path('review/delete/<int:review_id>/', delete_review, name='delete_review'),
 ]

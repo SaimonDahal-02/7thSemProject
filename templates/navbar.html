@@ -26,9 +26,15 @@
             <a href="{% url 'books:book-shelf' %}" class="navbar-brand">
               BookShelf
             </a>
+              {% if user.is_reviewer %}
+                  <a href="{% url 'books:reviewer_request_list' %}" class="navbar-brand">Reviewer Book Requests</a>
+              {% else %}
+                  <a href="{% url 'books:request_list' %}" class="navbar-brand">User Book Requests</a>
+              {% endif %}
             <a class="navbar-brand" href="{% url 'books:booknote_list' %}">
               Book Notes
             </a>
+            <a href="{% url 'books:notification_list' %}" class="navbar-brand">Notifications</a>
             <ul class="navbar-nav ms-auto">
                 {% if request.user.is_authenticated %}
                 <li class="nav-item dropdown">

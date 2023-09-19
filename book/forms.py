@@ -7,6 +7,7 @@ from .models import (
     Author, 
     Genre, 
     BookNote,
+    BookRequest,
 )
 from django.contrib.auth.forms import UserCreationForm, UsernameField
 from django.contrib.auth import get_user_model
@@ -35,6 +36,8 @@ class UserProfileForm(forms.ModelForm):
             "profile_pic",
             "sex",
             "favorite_genre",
+            "favorite_author",
+            "profession",
             "facebook_url",
             "instagram_url",
             "website_url",
@@ -107,12 +110,26 @@ class BookNoteForm(forms.ModelForm):
             'style_rating',
             'engagement_rating',
             'overall_rating',
-            'finish_date']
+            'finish_date'
+            ]
 
 
+class BookRequestForm(forms.ModelForm):
+    class Meta:
+        model = BookRequest
+        fields = ['title', 'author','additional_info']  # Include any additional fields you need
 
+    # Additional fields not present in the model
+    additional_info = forms.CharField(widget=forms.Textarea, required=False)  # You can add any additional fields as needed
+    
+class BookRequestApprovalForm(forms.Form):
+    DECISION_CHOICES = (
+        ('add', 'Add'),
+        ('deny', 'Deny'),
+    )
 
-
+    request_id = forms.IntegerField(widget=forms.HiddenInput)
+    decision = forms.ChoiceField(choices=DECISION_CHOICES)
 
 
 

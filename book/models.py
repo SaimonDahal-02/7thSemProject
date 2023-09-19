@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models.signals import post_save
 from django.db.models import Avg
+from django.urls import reverse
 
 class User(AbstractUser):
     is_admin = models.BooleanField(default=False)
@@ -18,7 +19,9 @@ class UserProfile(models.Model):
     
     sex = models.CharField(max_length=10, choices=[('male', 'Male'), ('female', 'Female'), ('other', 'Other')], null=True, blank=True)
     favorite_genre = models.CharField(max_length=255, null=True, blank=True)
-    
+    favorite_author = models.CharField(max_length=255, null=True, blank=True)
+    profession = models.CharField(max_length=255, null=True, blank=True)
+
     website_url = models.URLField(max_length=255, null=True, blank=True)
     facebook_url = models.URLField(max_length=255, null=True, blank=True)
     twitter_url = models.URLField(max_length=255, null=True, blank=True)
@@ -43,10 +46,9 @@ class Book(models.Model):
     image_local = models.ImageField(upload_to='books/', blank=True, null=True)
     
     author = models.ManyToManyField("Author", blank=True, related_name="book_authors")
-    
-    
+        
     def __str__(self):
-        return f"{self.title}: {self.average_rating()}"
+        return f"{self.title}"
     
 class Author(models.Model):
     name = models.CharField(max_length=350)
@@ -100,12 +102,22 @@ class Review(models.Model):
         self.user.userprofile.reviews_written = Review.objects.filter(user=self.user).count()
         self.user.userprofile.save()
         
-class Notification(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
-    message = models.TextField()
-    is_read = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
+class BookRequest(models.Model):
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('denied', 'Denied'),
+    )
+
+    title = models.CharField(max_length=350, default='')  # Title of the book with a default value of an empty string
+    author = models.CharField(max_length=200, default='')  # Author of the book with a default value of an empty string
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')  # Default status is 'pending'
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # User who made the request
+    denial_message = models.TextField(blank=True, null=True)
+    denial_message_timestamp = models.DateTimeField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.title} by {self.author} ({self.get_status_display()})"
     
 class BookNote(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='booknotes')
@@ -134,6 +146,17 @@ class BookNote(models.Model):
 
     def __str__(self):
         return f"Review for {self.book.title} by {self.user.username}"
+    
+class Notification(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def get_absolute_url(self):
+        # Define the URL to redirect to when clicking the notification
+        return reverse('book:book-detail', kwargs={'pk': self.book.pk})
+
+    def __str__(self):
+        return f"New book added: {self.book.title}"
     
 def post_user_created_signal(sender, instance, created, **kwargs):
     if created:

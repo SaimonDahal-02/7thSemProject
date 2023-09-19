@@ -11,13 +11,15 @@
                     <li class="list-group-item book-item">
                         <div class="d-flex justify-content-between">
                             <a href="{% url 'books:book-detail' book.book.id %}">
-                                <img src="{{ book.image_local.url }}" alt="{{ book.book.title }}" class="img-thumbnail book-image">
+                                <img src="{{ book.book.image_local.url }}" alt="{{ book.book.title }}" class="img-thumbnail book-image">
                                 {{ book.book.title }}
                             </a>
                             <span class="completion-percentage">{{ book.page_number }} / {{ book.book.page_count }}</span>
+                            <span class="badge badge-danger">Reading</span>
                             <div class="actions">
                                 {% include 'snippets/book_action.html' %}
                             </div>
+                            
                         </div>
                     </li>
                     {% endfor %}
@@ -33,7 +35,7 @@
                     {% for book in completed_books %}
                     <li class="list-group-item">
                         <a href="{% url 'books:book-detail' book.book.id %}">
-                            <img src="{{ book.image_local.url }}" alt="{{ book.book.title }}" class="img-thumbnail">
+                            <img src="{{ book.book.image_local.url }}" alt="{{ book.book.title }}" class="img-thumbnail">
                             {{ book.book.title }}
                         </a>
                         <span class="badge badge-success">Completed</span>
@@ -51,7 +53,7 @@
                     {% for book in dropped_books %}
                     <li class="list-group-item">
                         <a href="{% url 'books:book-detail' book.book.id %}">
-                            <img src="{{ book.image_local.url }}" alt="{{ book.book.title }}" class="img-thumbnail">
+                            <img src="{{ book.book.image_local.url }}" alt="{{ book.book.title }}" class="img-thumbnail">
                             {{ book.book.title }}
                         </a>
                         <span class="badge badge-danger">Dropped</span>

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Book Requests</h1>
+{% for request in book_requests %}
+    {% if request.show_denial_message %}
+        <div class="denial-message">
+            {{ request.denial_message }}
+        </div>
+    {% endif %}
+{% endfor %}
+<ul>
+    {% for request in book_requests %}
+        {% if request.status == 'pending' %}
+            <li>
+                {{ request.title }} by {{ request.author }}
+            </li>
+        {% endif %}
+    {% empty %}
+        <li>No pending book requests.</li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'book:request_form' %}">Request a Book</a>
+{% endblock %}

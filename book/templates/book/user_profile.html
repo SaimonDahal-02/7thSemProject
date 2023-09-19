@@ -72,10 +72,10 @@
 
 		}
 		.img{
-			width: 190px; 
-			height: 220px;
-			margin-top: 10px;
-			margin-left: 10px;
+			width: 214px; 
+			height: 290px;
+			margin-top: 17px;
+			margin-left: 14px;
 		}
 
 		.dimmed-icon {
@@ -83,7 +83,7 @@
 			pointer-events: none; 
 		}
 		.name{
-			font-family: 'Caveat', cursive;
+			font-family: 'Mooli', sans-serif;
 		}
 		.bio{
 			margin-left: 20px;
@@ -131,8 +131,15 @@
 			font-size: xx-large;
 			font-family: 'Dancing Script', sans-serif;
 		}
-
-			
+		h3{
+			font-size: xx-large;
+			font-family: 'Dancing Script', cursive;
+		}
+		h1{
+			font-family: 'Dancing Script', cursive;
+			margin-left: 10px;
+		}
+		
 	</style>
 	<script>
 		$(document).ready(function() {
@@ -224,16 +231,17 @@
 	</script>
 </head>
 <body>
-	<div class="container mt-5">
-		<div class="card border">
+	<div class="container mt-5" style="margin-bottom: 40px;">
+		<div class="card border" style="width:1140px; margin-left: -15px; background-color: #d7ebee;">
+			<h1>Userprofile:</h1>
 			<div class="row no-gutters">
-				<div class="col-md-2">
+				<div class="col-md-3">
 					{% if user.userprofile.profile_pic %}
 						<img src="{{ user.userprofile.profile_pic.url }}" class="img-fluid mb-3 img" alt="Profile Picture">
 					{% else %}
 						<img src="{% static 'default.jpg' %}" class="img-fluid mb-3 img" alt="Profile Picture">
 					{% endif %}
-					<div style="margin-left: 16px; margin-top: -5px; margin-bottom: 16px">
+					<div style="margin-left: 37px; margin-top: -5px; margin-bottom: 16px">
 						{% if user.userprofile.website_url %}
 							<a href="{{ user.userprofile.website_url }}" class="icon-link mr-2" target="_blank">
 								<i class="fas fa-globe fa-2x"></i>
@@ -274,9 +282,9 @@
 				  	{% endif %}
 					<div id="notification" class="notification-box"></div>
 				</div>
-				<div class="col-md-10">
+				<div class="col-md-4">
 					<div class="card-body bio">
-						<h3 class="name">{{ user.username }}</h3>
+						<p><strong>Name:</strong> <div class="texts">{{ user.username }}</div></p>
 						
 						{% if user.userprofile.sex %}
 							<p><strong>Sex:</strong> <div class="texts">{{ user.userprofile.sex }}</div></p>
@@ -285,23 +293,46 @@
 						{% if user.userprofile.favorite_genre %}
 							<p><strong>Favorite Genre:</strong> <div class="texts">{{ user.userprofile.favorite_genre }}</div></p>
 						{% endif %}
-
-						{% if user.userprofile.bio %}
-							<p><strong>Bio:</strong> <div class="texts">{{ user.userprofile.bio }}</div></p>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="card-body bio">
+						<p><strong>Role:</strong> 
+							<div class="texts">
+								{% if not user.is_reviewer %}
+									user
+								{% else %}
+									Reviewer
+								{% endif %}
+								</div></p>
+						
+						{% if user.userprofile.sex %}
+							<p><strong>Profession:</strong> <div class="texts">{{ user.userprofile.profession }}</div></p>
 						{% endif %}
+						
+						{% if user.userprofile.favorite_genre %}
+							<p><strong>Favorite Author:</strong> <div class="texts">{{ user.userprofile.favorite_author }}</div></p>
+						{% endif %}
+					</div>
+				</div>
+				<div class="col-md-8" style="margin-top: -91px; margin-left: 322px;"> <!-- This div covers both the 2nd and 3rd columns -->
+					<div>
+						<p><strong>Bio:</strong></p>
+						<div class="texts">{{ user.userprofile.bio }}</div>
+						<p></p>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-	<div class="container mt-5">
-		<div class="row" style="background-color: #fff;">
+	<div class="container mt-5" style="margin-top: 40px;">
+		<div class="row" style="background-color:#d7ebee;">
 			<div class="col-md-12">
-				<h2>Your Stats:</h2>
+				<h2>Stats:</h2>
 				<div class="row justify-content-center">
 					<!-- First Card: Total Pages Read -->
 					<div class="col-md-4 mb-3">
-						<div class="card custom-card">
+						<div class="card custom-card" style="background-color:#d7ebee;">
 							<div class="card-body">
 								<h5 class="card-title">Pages Read</h5>
 								<p class="card-text"><strong>{{ user.userprofile.total_pages_read }}</strong></p>
@@ -311,7 +342,7 @@
 			
 					<!-- Second Card: Total Books Completed -->
 					<div class="col-md-4 mb-3">
-						<div class="card custom-card">
+						<div class="card custom-card" style="background-color: #d7ebee;">
 							<div class="card-body">
 								<h5 class="card-title">Books Completed</h5>
 								<p class="card-text"><strong>{{ completed_count }}</strong></p>
@@ -321,7 +352,7 @@
 			
 					<!-- Third Card: Total Reviews Written -->
 					<div class="col-md-4 mb-3">
-						<div class="card custom-card">
+						<div class="card custom-card" style="background-color:#d7ebee;">
 							<div class="card-body">
 								<h5 class="card-title">Reviews Written</h5>
 								<p class="card-text"><strong>{{ user.userprofile.reviews_written }}</strong></p>
@@ -329,13 +360,14 @@
 						</div>
 					</div>
 				</div>
-				<div id="chart-container" style="width: 400px; height: 400px;" class="mx-auto">
+				<h3>Bookshelf Stats:</h3>
+				<div id="chart-container" style="width: 400px; height: 400px; display: flex; align-items: stretch; margin-bottom:11px" class="mx-auto">
 					<canvas id="statusPieChart"></canvas>
 				</div>
 			</div>
 		</div>
 	</div>
-	<div class="container mt-5" style="background-color: #fff; margin-bottom: 20px;">
+	<div class="container mt-5" style="background-color:#d7ebee; margin-bottom: 20px; margin-top: 30px;">
 		<h2>Favorite Books:</h2>
 		<div class="favorite-books-container">
 			<div class="book-container mx-auto">
@@ -345,8 +377,8 @@
 						<a href="{% url 'books:book-detail' book.pk %}">
 							<div class="book-title">{{ book.title }}</div>
 						</a>
-						<div class="book-author">{{ book.author.all|join:", " }}</div>
-						<div class="book-published-year">{{ book.publication_year }}</div>
+						<div class="book-author" sytle="font-family: 'Nunito Sans', sans-serif;">{{ book.author.all|join:", " }}</div>
+						<div class="book-published-year" sytle="font-family: 'Nunito Sans', sans-serif;">{{ book.publication_year }}</div>
 					</div>
 				{% endfor %}
 			</div>

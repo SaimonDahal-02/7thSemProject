@@ -11,19 +11,23 @@ from django.views.generic.edit import FormView
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.http import JsonResponse
+from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.utils import timezone
 
 
 from .models import (
     Book, 
+    BookRequest,
     UserProfile, 
     Review, 
     Author, 
     Genre, 
     BookProgress, 
     BookNote,
+    Notification,
 )
 from .forms import (
     CustomUserCreationForm, 
@@ -31,6 +35,8 @@ from .forms import (
     UserProfileForm, 
     BookForm, 
     BookNoteForm,
+    BookRequestForm,
+    BookRequestApprovalForm
 )
 
 
@@ -282,7 +288,11 @@ class BookCreateView( generic.CreateView):
     def form_valid(self, form):
         # Pass both request.POST and request.FILES to the form
         form.instance.image_local = self.request.FILES.get('image_local')
-        return super().form_valid(form)
+        resonse = super().form_valid(form)
+        
+        Notification.objects.create(book=self.object)
+        
+        return resonse
 
 class BookUpdateView(generic.UpdateView):
     model = Book
@@ -298,7 +308,6 @@ class BookUpdateView(generic.UpdateView):
             return super().form_valid(form)
     
     
-
 class BookNoteCreateView(generic.CreateView):
     model = BookNote
     form_class = BookNoteForm
@@ -306,8 +315,16 @@ class BookNoteCreateView(generic.CreateView):
     success_url = reverse_lazy('book:user-profile')
 
     def form_valid(self, form):
+        # Get the book_id from the URL parameters
+        book_id = self.kwargs['book_id']
+        
+        # Ensure that the book with the given book_id exists
+        book = get_object_or_404(Book, pk=book_id)
+
+        # Set the user and book fields for the BookNote
         form.instance.user = self.request.user
-        form.instance.book = Book.objects.get(pk=self.kwargs['book_id'])
+        form.instance.book = book
+
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -336,3 +353,69 @@ class BookNoteListView(generic.ListView):
     model = BookNote
     template_name = 'book/user_notes.html'  # Create this template
     context_object_name = 'booknotes'
+    
+    def get_queryset(self):
+        # Filter BookNotes by the currently logged-in user
+        return BookNote.objects.filter(user=self.request.user)
+
+#################################################
+class BookRequestListView(generic.ListView):
+    model = BookRequest
+    template_name = 'book/book_request_list.html'
+    context_object_name = 'book_requests'
+
+    def get_queryset(self):
+        return BookRequest.objects.filter(user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        current_time = timezone.now()
+        for request in context['book_requests']:
+            if request.status == 'denied' and request.denial_message_timestamp:
+                time_difference = current_time - request.denial_message_timestamp
+                request.show_denial_message = time_difference.days <= 4
+        return context
+
+class BookRequestFormView(FormView):
+    form_class = BookRequestForm
+    template_name = 'book/book_request_form.html'  # Replace with your actual template name
+    success_url = reverse_lazy('book:request_list')  # Redirect back to the list after form submission
+
+    def form_valid(self, form):
+        book_request = form.save(commit=False)
+        book_request.user = self.request.user
+        book_request.save()
+        return super().form_valid(form)
+
+class ReviewerBookRequestListView(generic.ListView):
+    model = BookRequest
+    template_name = 'book/reviewer_book_request_list.html'
+    context_object_name = 'book_requests'
+
+    def get_queryset(self):
+        # Filter requests with a "pending" status
+        return BookRequest.objects.filter(status='pending')
+
+    def post(self, request, *args, **kwargs):
+        request_id = request.POST.get('request_id')
+        if request_id:
+            book_request = BookRequest.objects.filter(id=request_id, status='pending').first()
+            if book_request:
+                book_request.status = 'denied'
+                messages.success(request, f'Request for "{book_request.title}" has been denied.')
+                book_request.denial_message = f'Request for "{book_request.title}" has been denied.'
+                book_request.denial_message_timestamp = timezone.now()
+                book_request.save()
+
+        return redirect('book:reviewer_request_list')
+#############################################################
+class NotificationListView(generic.ListView):
+    model = Notification
+    template_name = 'book/notification_list.html'
+    context_object_name = 'notifications'
+    
+    def get_queryset(self):
+        # Retrieve and order notifications by creation time (newest first)
+        return Notification.objects.all().order_by('-created_at')
+
+    

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Notifications</h1>
+<ul>
+    {% for notification in notifications %}
+        <li>
+            <a href="{{ notification.get_absolute_url }}">{{ notification }}</a>
+            - {{ notification.created_at }}
+        </li>
+    {% empty %}
+        <li>No new notifications.</li>
+    {% endfor %}
+</ul>
+{% endblock %}
