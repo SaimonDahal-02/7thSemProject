@@ -104,8 +104,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
-
+TIME_ZONE = 'Asia/Kathmandu'
 USE_I18N = True
 
 USE_TZ = True
@@ -124,7 +123,7 @@ AUTH_USER_MODEL = 'book.User'
 
 LOGIN_REDIRECT_URL = '/'
 
-LOGIN_URL = '/login'
+LOGIN_URL = '/login/'
 LOGOUT_REDIRECT_URL = '/'
 
 #SMTP Configuration

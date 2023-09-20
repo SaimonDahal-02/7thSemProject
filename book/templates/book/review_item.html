@@ -6,10 +6,9 @@
         {% else %}
             <img src="{% static 'default.jpg' %}" class="rounded-circle profile-picture img-fluid img-thumbnail" alt="Profile Picture">
         {% endif %}
-        <p class="username"><strong>{{ review.user.username }}</strong></p>
-        <p class="review-date text-right">{{ review.publish }}</p>
-    </div>
-    <div class="review-content">
-        <p>{{ review.content }}</p>
+        <div class="user-info">
+            <p class="username"><strong>{{ review.user.username }}</strong> <span class="review-date">{{ review.publish }}</span></p>
+            <p class="review-content">{{ review.content }}</p>
+        </div>
     </div>
 </div>

@@ -27,43 +27,71 @@
 			border: 1px solid #333;
 			padding: 10px;
 			margin-bottom: 10px;
-			background-color: #d8c6c6;
+			background-color: #d7ebee;
 			border-radius: 25px;
 		}
-	
+		
 		.user-profile {
 			display: flex;
 			align-items: center;
 		}
-	
+		
 		.profile-picture {
-			width: 60px;
-			height: 60px;
-			object-fit: cover;
+			width: 80px;
+			height: 80px;
 			border-radius: 50%;
+			background-color: #d7ebee;
+			object-fit: unset;
 			margin-right: 10px;
+			border: none;
 		}
-	
+		
+		.user-info {
+			flex-grow: 1; /* Expands to fill remaining space */
+		}
+		
 		.username {
 			font-weight: bold;
+			margin: 0;
 		}
-	
-		.review-content p {
+		
+		.review-content {
+			margin-top: 10px;
 			margin-bottom: 0;
 		}
-	
+		
 		.review-date {
 			font-size: 12px;
 			color: #999;
+			margin-right: auto;
 		}
+		
+		  
 		.centered-input {
 			text-align: center;
-			width: 20%;
-			display: block;
-			margin: 0 auto;
-			border: none;
 			border-bottom: 1px solid #000;
 			padding: 0;
+			outline: none;
+			background-color: #d7ebee;
+			font-family: 'Nunito Sans', sans-serif;
+		} 
+		.centered-input::-webkit-inner-spin-button,
+		.centered-input::-webkit-outer-spin-button {
+			-webkit-appearance: none;
+			appearance: none;
+			margin: 0;
+		}
+		.chat-bubble-button {
+			background-color: #007bff; /* Button background color */
+			color: #fff; /* Text color */
+			border: none;
+			border-radius: 20px; /* Adjust the border-radius to change the bubble shape */
+			padding: 10px 20px; /* Adjust the padding for button size */
+			position: absolute;
+			bottom: 10px;
+			right: 10px;
+			cursor: pointer;
+			outline: none;
 		}
 		
 	</style>
@@ -125,7 +153,7 @@
 </head>
 <body>
 	<div class="container mt-5">
-		<div class="card" style="background-color: #4b6b78; color: #fff;">
+		<div class="card" style="background-color: #d7ebee; color: #090909;">
 			<div class="row no-gutters">
 				<div class="col-md-8">
 					<div class="d-flex flex-column justify-content-center align-items-center h-100">
@@ -146,7 +174,7 @@
 	</div>
 	
 	<div class="container mt-3">
-		<div class="card" style="background-color: #4b6b78; color:#fff;">
+		<div class="card" style="background-color: #d7ebee; color:#090909;">
 			<div class="row no-gutters">
 				<div class="col-md-6 p-3">
 					<p class="card-text"><strong class="heading">ISBN:</strong>
@@ -210,28 +238,25 @@
 								No genre information available
 							{% endif %}
 						</span>
-					</p>
-					{% if user.is_authenticated %}
-						{% if progress %}
-							<div class="d-flex align-items-center">
-								<p class="mb-0 mr-2"><strong class="heading">Progress: </strong></p>
-								<div class="progress flex-grow-1" style="margin-right: 340px;">
-									<div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ completion_percentage }}%;" aria-valuenow="{{ completion_percentage }}" aria-valuemin="0" aria-valuemax="100">
-										<span class="progress-text">{{ completion_percentage|floatformat:2 }}%</span>
-									</div>
-								</div>
-							</div>
-						
-										
+					</p>	
+					<p class="card-text"><strong class="heading">Completion:</strong>
+						<span class="texts">
+						{{ completion_percentage|floatformat:2 }} %
+						</span>
+					</p>				
+					{% if user.is_authenticated %}{% if progress %}
+					<div class="d-flex align-items-center">
+						<p class="mb-0 mr-2"><strong class="heading">Progress:</strong></p>
+						<span>
 							<form method="post" action="{% url 'book:book-detail' book.id %}">
 								{% csrf_token %}
 								<input type="hidden" name="page_number" value="{{ progress.page_number }}">
 								<input type="number" name="new_page_number" min="0" max="{{ book.page_count }}" value="{{ progress.page_number }}" class="centered-input">
 								<button type="submit" name="update_page_number" style="display:none;">Update</button>
 							</form>
-							
-						{% endif %}
-					{% endif %}
+						</span>
+					</div>
+					{% endif %}{% endif %}
 				</div>
 				<div class="col-md-6 text-center mt-3">
 					<div class="mb-3">
@@ -243,6 +268,7 @@
 							{% endif %}
 						</button>
 					</div>
+					
 					{% if user.is_authenticated %}
 						{% if progress %}
 							<div class="mb-3">
@@ -253,25 +279,21 @@
 								</form>
 							</div>
 						{% endif %}
-					{% endif %}
-					{% if user.is_authenticated %}
+						
 						{% with book_note=book|get_booknote:user %}
-							{% if book_note %}
-								<div class="mb-3">
+							<div class="mb-3">
+								{% if book_note %}
 									<a href="{% url 'book:view_booknote' book_id=book.id pk=book_note.id %}" class="btn btn-info">View Note</a>
-								</div>
-							{% else %}
-								<div class="mb-3">
+								{% else %}
 									<a href="{% url 'book:create_booknote' book_id=book.id %}" class="btn btn-primary">Create Note</a>
-								</div>
-							{% endif %}
+								{% endif %}
+							</div>
 						{% endwith %}
 					{% else %}
 						<p>Please log in to create/view notes.</p>
 					{% endif %}
 				</div>
-				
-				
+						
 			</div>
 		</div>
 	</div>
@@ -279,31 +301,30 @@
 	<div class="container mt-5">
 		<form id="review-form" action="{% url 'book:book-detail' book.id %}" method="POST">
 			{% csrf_token %}
-			<div class="form-group">
-				<textarea id="review-content" name="content" class="form-control form-control-lg" placeholder="Write your review here..." rows="2" style="resize: none;"></textarea>
+			<div class="form-group" style="position: relative;">
+				<textarea id="review-content" name="content" class="form-control form-control-lg" placeholder="Write your review here..." rows="2" style="resize: none; text-align: left; padding-top: 20px;"></textarea>
+				<button type="submit" class="chat-bubble-button">Submit</button>
 			</div>
-			<button type="submit" class="btn btn-primary btn-lg">Submit</button>
 		</form>
 		<div class="review-list">
-            {% for review in book.reviews.all %}
-                <div class="review-item">
-                    <div class="user-profile">
-                        {% if review.user.userprofile.profile_pic %}
-                            <img src="{{ review.user.userprofile.profile_pic.url }}" class="rounded-circle profile-picture img-fluid img-thumbnail" alt="Profile Picture">
-                        {% else %}
-                            <img src="{% static 'default.jpg' %}" class="rounded-circle profile-picture img-fluid img-thumbnail" alt="Profile Picture">
-                        {% endif %}
-                        <div>
-                            <p class="username"><strong>{{ review.user.username }}</strong></p>
-                            <p class="review-content">{{ review.content }}</p>
-                            <p class="review-date">{{ review.publish }}</p>
-                        </div>
-                    </div>
-                </div>
-            {% empty %}
-                <p class="no-reviews-message">No reviews yet.</p>
-            {% endfor %}
-        </div>
+			{% for review in book.reviews.all %}
+			<div class="review-item">
+				<div class="user-profile">
+					{% if review.user.userprofile.profile_pic %}
+						<img src="{{ review.user.userprofile.profile_pic.url }}" class="rounded-circle profile-picture img-fluid img-thumbnail" alt="Profile Picture">
+					{% else %}
+						<img src="{% static 'default.jpg' %}" class="rounded-circle profile-picture img-fluid img-thumbnail" alt="Profile Picture">
+					{% endif %}
+					<div class="user-info">
+						<p class="username"><strong>{{ review.user.username }}</strong> <span class="review-date">{{ review.publish }}</span></p>
+						<p class="review-content">{{ review.content }}</p>
+					</div>
+				</div>
+			</div>			
+			{% empty %}
+				<p class="no-reviews-message">No reviews yet.</p>
+			{% endfor %}
+		</div>
 	</div>
 </body>
 </html>

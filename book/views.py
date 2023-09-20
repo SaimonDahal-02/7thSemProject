@@ -13,8 +13,8 @@ from django.db.models import Q
 from django.http import JsonResponse
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.utils import timezone
 
 
@@ -36,10 +36,8 @@ from .forms import (
     BookForm, 
     BookNoteForm,
     BookRequestForm,
-    BookRequestApprovalForm
+    BookRequestApprovalForm,
 )
-
-
 
 class SignupView(generic.CreateView):
     template_name = "registration/signup.html"
@@ -117,7 +115,7 @@ class BookActionMixin:
     
 
 
-class BookshelfListView(generic.ListView):
+class BookshelfListView(LoginRequiredMixin, generic.ListView):
     model = BookProgress
     template_name = 'book/book_shelf.html'
     context_object_name = 'bookshelf_list'
@@ -139,7 +137,7 @@ class BookshelfListView(generic.ListView):
         user = self.request.user
         return BookProgress.objects.filter(user=user)
 
-class BookDetailView(BookActionMixin, generic.DetailView):
+class BookDetailView(LoginRequiredMixin, BookActionMixin, generic.DetailView):
     model=Book
     template_name = "book/book_detail.html"
     context_object_name = "book"
@@ -212,7 +210,7 @@ class BookDetailView(BookActionMixin, generic.DetailView):
     #     except Rating.DoesNotExist:
     #         return None   
     
-class UserProfileView(generic.ListView):
+class UserProfileView(LoginRequiredMixin, generic.ListView):
     model = UserProfile
     template_name = 'book/user_profile.html'
     context_object_name = 'user_profile'
@@ -237,7 +235,7 @@ class UserProfileView(generic.ListView):
         context['status_counts'] = f"{reading_count},{completed_count},{dropped_count}"
         return context
 
-class UserProfileUpdateView(generic.UpdateView):
+class UserProfileUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = UserProfile
     form_class = UserProfileForm
     template_name = 'book/user_settings.html'
@@ -279,22 +277,36 @@ def change_role_to_reviewer(request):
         message = f'Sorry, you need to write {remaining_reviews} more reviews to become a reviewer.'
         return JsonResponse({'message': message, 'hideForm': False})
 
-class BookCreateView( generic.CreateView):
+class BookCreateView(LoginRequiredMixin, generic.CreateView):
     model = Book
     form_class = BookForm
     template_name = 'book/create_book.html'
     
     success_url = '/'
     def form_valid(self, form):
-        # Pass both request.POST and request.FILES to the form
-        form.instance.image_local = self.request.FILES.get('image_local')
-        resonse = super().form_valid(form)
-        
-        Notification.objects.create(book=self.object)
-        
-        return resonse
+        title = form.cleaned_data.get('title')
+        author = form.cleaned_data.get('author')
 
-class BookUpdateView(generic.UpdateView):
+        # Check if both title and author are not None
+        if title is not None:
+    # Normalize the input title for case-insensitive search
+            normalized_title = title.lower()
+
+            # Check if a book with the same normalized title exists
+            existing_book = Book.objects.filter(title__iexact=normalized_title).first()
+
+            if existing_book:
+                # Redirect the user to the existing book's detail page
+                return redirect('book:book-detail', pk=existing_book.pk)
+        else:
+# If title or author is None or a matching book doesn't exist, create a new book
+            form.instance.image_local = self.request.FILES.get('image_local')
+            response = super().form_valid(form)
+            # Create a notification for the newly created book
+            Notification.objects.create(book=self.object)
+            return response
+
+class BookUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = Book
     form_class = BookForm
     template_name = 'book/book_update.html'
@@ -308,7 +320,7 @@ class BookUpdateView(generic.UpdateView):
             return super().form_valid(form)
     
     
-class BookNoteCreateView(generic.CreateView):
+class BookNoteCreateView(LoginRequiredMixin, generic.CreateView):
     model = BookNote
     form_class = BookNoteForm
     template_name = 'book/booknote_form.html'
@@ -333,7 +345,7 @@ class BookNoteCreateView(generic.CreateView):
         pk = self.object.pk
         return reverse_lazy('book:view_booknote', kwargs={'book_id': book_id, 'pk': pk})
 
-class BookNoteUpdateView(generic.UpdateView):
+class BookNoteUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = BookNote
     form_class = BookNoteForm
     template_name = 'book/booknote_form.html'
@@ -344,12 +356,12 @@ class BookNoteUpdateView(generic.UpdateView):
         pk = self.kwargs['pk']
         return reverse_lazy('book:view_booknote', kwargs={'book_id': book_id, 'pk': pk})
 
-class BookNoteDetailView(generic.DetailView):
+class BookNoteDetailView(LoginRequiredMixin, generic.DetailView):
     model = BookNote
     template_name = 'book/booknote_detail.html'
     context_object_name = 'booknote'
     
-class BookNoteListView(generic.ListView):
+class BookNoteListView(LoginRequiredMixin, generic.ListView):
     model = BookNote
     template_name = 'book/user_notes.html'  # Create this template
     context_object_name = 'booknotes'
@@ -359,7 +371,7 @@ class BookNoteListView(generic.ListView):
         return BookNote.objects.filter(user=self.request.user)
 
 #################################################
-class BookRequestListView(generic.ListView):
+class BookRequestListView(LoginRequiredMixin, generic.ListView):
     model = BookRequest
     template_name = 'book/book_request_list.html'
     context_object_name = 'book_requests'
@@ -376,7 +388,7 @@ class BookRequestListView(generic.ListView):
                 request.show_denial_message = time_difference.days <= 4
         return context
 
-class BookRequestFormView(FormView):
+class BookRequestFormView(LoginRequiredMixin, FormView):
     form_class = BookRequestForm
     template_name = 'book/book_request_form.html'  # Replace with your actual template name
     success_url = reverse_lazy('book:request_list')  # Redirect back to the list after form submission
@@ -387,7 +399,7 @@ class BookRequestFormView(FormView):
         book_request.save()
         return super().form_valid(form)
 
-class ReviewerBookRequestListView(generic.ListView):
+class ReviewerBookRequestListView(LoginRequiredMixin, generic.ListView):
     model = BookRequest
     template_name = 'book/reviewer_book_request_list.html'
     context_object_name = 'book_requests'
@@ -409,7 +421,7 @@ class ReviewerBookRequestListView(generic.ListView):
 
         return redirect('book:reviewer_request_list')
 #############################################################
-class NotificationListView(generic.ListView):
+class NotificationListView(LoginRequiredMixin, generic.ListView):
     model = Notification
     template_name = 'book/notification_list.html'
     context_object_name = 'notifications'

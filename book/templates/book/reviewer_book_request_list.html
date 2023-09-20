@@ -27,4 +27,7 @@
         <li>No pending book requests.</li>
     {% endfor %}
 </ul>
+{% if user.is_reviewer %}
+            <a href="{% url 'books:add_book' %}">here</a>
+        {% endif %}
 {% endblock %}
