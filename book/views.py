@@ -381,11 +381,6 @@ class BookRequestListView(LoginRequiredMixin, generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        current_time = timezone.now()
-        for request in context['book_requests']:
-            if request.status == 'denied' and request.denial_message_timestamp:
-                time_difference = current_time - request.denial_message_timestamp
-                request.show_denial_message = time_difference.days <= 4
         return context
 
 class BookRequestFormView(LoginRequiredMixin, FormView):
@@ -408,17 +403,29 @@ class ReviewerBookRequestListView(LoginRequiredMixin, generic.ListView):
         # Filter requests with a "pending" status
         return BookRequest.objects.filter(status='pending')
 
+    def get_queryset(self):
+        # Filter requests with a "pending" status
+        return BookRequest.objects.filter(status='pending')
+
     def post(self, request, *args, **kwargs):
         request_id = request.POST.get('request_id')
         if request_id:
             book_request = BookRequest.objects.filter(id=request_id, status='pending').first()
             if book_request:
-                book_request.status = 'denied'
-                messages.success(request, f'Request for "{book_request.title}" has been denied.')
-                book_request.denial_message = f'Request for "{book_request.title}" has been denied.'
-                book_request.denial_message_timestamp = timezone.now()
-                book_request.save()
+                # Check if the request is for approval or denial
+                if 'approve' in request.POST:
+                    book_request.status = 'approved'
+                    book_request.approval_message = f'Request for {book_request.title} has been approved.'  # Get the approval message from the form  # Set the approval message
+                    book_request.approval_message_timestamp = timezone.now()
+                    messages.success(request, f'Request for "{book_request.title}" has been approved.')
+                elif 'deny' in request.POST:
+                    book_request.status = 'denied'
+                    
+                    book_request.denial_message = f'Request for {book_request.title} has been denied.'   # Set the denial message
+                    book_request.denial_message_timestamp = timezone.now()
+                    messages.success(request, f'Request for "{book_request.title}" has been denied.')
 
+                book_request.save()
         return redirect('book:reviewer_request_list')
 #############################################################
 class NotificationListView(LoginRequiredMixin, generic.ListView):

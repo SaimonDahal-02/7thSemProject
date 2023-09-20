@@ -2,7 +2,7 @@
 
 from django import template
 from book.models import BookNote
-from datetime import date
+from datetime import date, timedelta
 
 register = template.Library()
 
@@ -27,4 +27,10 @@ def format_date(value):
 
         return f"{day_str} {month}, {year}"
 
+    return value
+
+@register.filter
+def add_timedelta(value, days):
+    if value is not None:
+        return value + timedelta(days=days)
     return value

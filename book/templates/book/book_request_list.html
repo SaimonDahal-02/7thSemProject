@@ -3,9 +3,14 @@
 {% block content %}
 <h1>Book Requests</h1>
 {% for request in book_requests %}
-    {% if request.show_denial_message %}
+    {% if request.status == 'denied' and request.denial_message %}
         <div class="denial-message">
             {{ request.denial_message }}
+        </div>
+    {% endif %}
+    {% if request.status == 'approved' and request.approval_message %}
+        <div class="approval-message">
+            {{ request.approval_message }}
         </div>
     {% endif %}
 {% endfor %}

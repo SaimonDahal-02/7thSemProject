@@ -115,6 +115,8 @@ class BookRequest(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)  # User who made the request
     denial_message = models.TextField(blank=True, null=True)
     denial_message_timestamp = models.DateTimeField(blank=True, null=True)
+    approval_message = models.TextField(blank=True, null=True)
+    approval_message_timestamp = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.title} by {self.author} ({self.get_status_display()})"
