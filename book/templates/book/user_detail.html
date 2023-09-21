@@ -1,0 +1,385 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<style>
+		.notification-box {
+			position: fixed;
+			bottom: 20px;
+			right: 20px;
+			background-color: rgb(19 135 186);
+			color: #fff;
+			padding: 20px 40px; /* Increase padding on top and bottom for a bigger box */
+			border-radius: 5px;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+			display: none; /* Hide initially */
+			opacity: 0;
+			transition: opacity 0.5s;
+		}
+		
+		.notification-box.show {
+			display: block;
+			opacity: 1;
+		}
+
+		.favorite-books-container {
+			max-height: 400px; /* Set a maximum height for the container */
+			overflow: auto;
+			 /* Add scrollbars when content exceeds the height */
+		}
+		
+		.book-container {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: space-between;
+			gap: 10px;
+		}
+		
+		.book {
+			width: calc(33.33% - 10px); /* Three books per row with a gap of 10px */
+			border: 1px solid #ccc;
+			padding: 10px;
+			height: 300px; /* Fixed height for each book */
+			box-sizing: border-box; /* Include padding and border in the height calculation */
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+		
+		.book-image {
+			max-height: 160px;
+			width: auto;
+		}
+		
+		.book-title {
+			font-size: 23px;
+			margin-top: 10px;
+			color: #333;
+			text-decoration: none;
+			font-family: 'Dancing Script', cursive;
+		}
+		
+		.book-publisher,
+		.book-published-year,
+		.book-author {
+			font-style: italic;
+			font-size: 14px;
+			margin-top: 5px;
+
+		}
+		.img{
+			width: 214px; 
+			height: 290px;
+			margin-top: 17px;
+			margin-left: 14px;
+		}
+
+		.dimmed-icon {
+			opacity: 0.5;
+			pointer-events: none; 
+		}
+		.name{
+			font-family: 'Mooli', sans-serif;
+		}
+		.bio{
+			margin-left: 20px;
+
+		}
+		strong{
+			font-family: 'Mooli', sans-serif;
+		}
+		.texts{
+			font-family: 'Nunito Sans', sans-serif;
+		}
+		/* CSS to style the button */
+		.hover-button {
+			background-color: #FFA500; /* Default button color (orange) */
+			color: #fff; /* Text color */
+			margin-left: 32px;
+			margin-bottom: 11px;
+			padding: 8px 20px;
+			border-radius: 25px;
+			border: none;
+			cursor: pointer;
+			background-image: linear-gradient(to right, #FFA500 50%, #FF0000 50%); /* Orange to red gradient */
+			background-size: 200% 100%;
+			transition: background-position 0.3s ease;
+		}
+
+		.hover-button:hover {
+			background-position: -100% 0;
+		}
+		.custom-card {
+			border: none;
+			text-align: center;
+		}
+	
+		.custom-card .card-title {
+			margin-bottom: 0;
+			font-weight: bold;
+			font-family: 'Mooli', sans-serif;
+		}
+		.card-text{
+			margin-top: 10px;
+			font-family: 'Nunito Sans', sans-serif;
+		}
+		h2{
+			font-size: xx-large;
+			font-family: 'Dancing Script', sans-serif;
+		}
+		h3{
+			font-size: xx-large;
+			font-family: 'Dancing Script', cursive;
+		}
+		h1{
+			font-family: 'Dancing Script', cursive;
+			margin-left: 10px;
+		}
+		
+	</style>
+	<script>
+		$(document).ready(function() {
+			$('#change-role-form').submit(function(event) {
+				event.preventDefault();
+		
+				var form = $(this);
+		
+				$.ajax({
+					type: 'POST',
+					url: '{% url "books:change_role_to_reviewer" %}',
+					data: form.serialize(),
+					success: function(data) {
+						var notification = $('#notification');
+						notification.text(data.message);
+						notification.addClass('show'); // Show the notification
+		
+						// Check if the user has met the condition to hide the form
+						if (data.hideForm) {
+							form.fadeOut(1000); // Hide the form after 2 seconds
+						}
+		
+						setTimeout(function() {
+							notification.removeClass('show');
+						}, 2000); // Adjust the duration as needed (in milliseconds)
+					},
+					error: function(data) {
+						var notification = $('#notification');
+						notification.text('An error occurred. Please try again later.');
+						notification.addClass('show'); // Show the error notification
+						setTimeout(function() {
+							notification.removeClass('show'); // Hide the error notification after 2 seconds
+						}, 2000); // Adjust the duration as needed (in milliseconds)
+					}
+				});
+			});
+		});
+		
+		function createPieChart(statusCounts) {
+			var ctx = document.getElementById("statusPieChart").getContext("2d");
+			var data = {
+				labels: ["Reading", "Completed", "Dropped"],
+				datasets: [
+					{
+						data: statusCounts,
+						backgroundColor: ["#FF5733", "#36A2EB", "#FFCE56"],
+					},
+				],
+			};
+	
+			var options = {
+				responsive: true,
+				maintainAspectRatio: false,
+			};
+	
+			var statusPieChart = new Chart(ctx, {
+				type: "pie",
+				data: data,
+				options: options,
+			});
+		}
+	
+		// Wait for the DOM to be fully loaded
+		document.addEventListener("DOMContentLoaded", function () {
+			var statusCounts = [{{ reading_count }}, {{ completed_count }}, {{ dropped_count }}]; // Replace with actual counts
+			createPieChart(statusCounts);
+		});
+		document.addEventListener("DOMContentLoaded", function () {
+			const bookContainer = document.querySelector(".book-container");
+			const noBooksMessage = document.querySelector(".no-books-message");
+			const favoriteBooksContainer = document.querySelector(".favorite-books-container");
+		
+			if (bookContainer.children.length === 0) {
+				noBooksMessage.style.display = "block";
+			}
+		
+			// Check the height of the book container and adjust the max-height of the favorite-books-container
+			function adjustContainerHeight() {
+				const containerHeight = bookContainer.clientHeight;
+				favoriteBooksContainer.style.maxHeight = `${containerHeight}px`;
+			}
+		
+			// Call the function initially
+			adjustContainerHeight();
+		
+			// Call the function whenever the window is resized (to adjust height dynamically)
+			window.addEventListener("resize", adjustContainerHeight);
+		});
+	</script>
+</head>
+<body>
+    <div class="container mt-5" style="margin-bottom: 40px;">
+        <div class="card border" style="width:1140px; margin-left: -15px; background-color: #d7ebee;">
+            <h1>User Profile:</h1>
+            <div class="row no-gutters">
+                <div class="col-md-3">
+                    {% if profile.user.userprofile.profile_pic %}
+                        <img src="{{ profile.user.userprofile.profile_pic.url }}" class="img-fluid mb-3 img" alt="Profile Picture">
+                    {% else %}
+                        <img src="{% static 'default.jpg' %}" class="img-fluid mb-3 img" alt="Profile Picture">
+                    {% endif %}
+                    <div style="margin-left: 37px; margin-top: -5px; margin-bottom: 16px">
+                        {% if profile.user.userprofile.website_url %}
+                            <a href="{{ profile.user.userprofile.website_url }}" class="icon-link mr-2" target="_blank">
+                                <i class="fas fa-globe fa-2x"></i>
+                            </a>
+                        {% else %}
+                            <i class="fas fa-globe dimmed-icon mr-2 fa-2x"></i>
+                        {% endif %}
+                        
+                        {% if profile.user.userprofile.facebook_url %}
+                            <a href="{{ profile.user.userprofile.facebook_url }}" class="icon-link mr-2" target="_blank">
+                                <i class="fab fa-facebook fa-2x"></i>
+                            </a>
+                        {% else %}
+                            <i class="fab fa-facebook dimmed-icon mr-2 fa-2x"></i>
+                        {% endif %}
+                        
+                        {% if profile.user.userprofile.twitter_url %}
+                            <a href="{{ profile.user.userprofile.twitter_url }}" class="icon-link mr-2" target="_blank">
+                                <i class="fab fa-twitter fa-2x"></i>
+                            </a>
+                        {% else %}
+                            <i class="fab fa-twitter dimmed-icon mr-2 fa-2x"></i>
+                        {% endif %}
+                        
+                        {% if profile.user.userprofile.instagram_url %}
+                            <a href="{{ profile.user.userprofile.instagram_url }}" class="icon-link mr-2" target="_blank">
+                                <i class="fab fa-instagram fa-2x"></i>
+                            </a>
+                        {% else %}
+                            <i class="fab fa-instagram dimmed-icon mr-2 fa-2x"></i>
+                        {% endif %}
+                    </div>
+                    
+                    <div id="notification" class="notification-box"></div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card-body bio">
+                        <p><strong>Name:</strong> <div class="texts">{{ profile.user.username }}</div></p>
+                        
+                        {% if profile.user.userprofile.sex %}
+                            <p><strong>Sex:</strong> <div class="texts">{{ profile.user.userprofile.sex }}</div></p>
+                        {% endif %}
+                        
+                        {% if profile.user.userprofile.favorite_genre %}
+                            <p><strong>Favorite Genre:</strong> <div class="texts">{{ profile.user.userprofile.favorite_genre }}</div></p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card-body bio">
+                        <p><strong>Role:</strong> 
+                            <div class="texts">
+                                {% if not profile.user.is_reviewer %}
+                                    user
+                                {% else %}
+                                    Reviewer
+                                {% endif %}
+                            </div>
+                        </p>
+                        
+                        {% if profile.user.userprofile.sex %}
+                            <p><strong>Profession:</strong> <div class="texts">{{ profile.user.userprofile.profession }}</div></p>
+                        {% endif %}
+                        
+                        {% if profile.user.userprofile.favorite_genre %}
+                            <p><strong>Favorite Author:</strong> <div class="texts">{{ profile.user.userprofile.favorite_author }}</div></p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-8" style="margin-top: -91px; margin-left: 322px;"> <!-- This div covers both the 2nd and 3rd columns -->
+                    <div>
+                        <p><strong>Bio:</strong></p>
+                        <div class="texts">{{ profile.user.userprofile.bio }}</div>
+                        <p></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container mt-5" style="margin-top: 40px;">
+        <div class="row" style="background-color:#d7ebee;">
+            <div class="col-md-12">
+                <h2>Stats:</h2>
+                <div class="row justify-content-center">
+                    <!-- First Card: Total Pages Read -->
+                    <div class="col-md-4 mb-3">
+                        <div class="card custom-card" style="background-color:#d7ebee;">
+                            <div class="card-body">
+                                <h5 class="card-title">Pages Read</h5>
+                                <p class="card-text"><strong>{{ profile.user.userprofile.total_pages_read }}</strong></p>
+                            </div>
+                        </div>
+                    </div>
+            
+                    <!-- Second Card: Total Books Completed -->
+                    <div class="col-md-4 mb-3">
+                        <div class="card custom-card" style="background-color: #d7ebee;">
+                            <div class="card-body">
+                                <h5 class="card-title">Books Completed</h5>
+                                <p class="card-text"><strong>{{ completed_count }}</strong></p>
+                            </div>
+                        </div>
+                    </div>
+            
+                    <!-- Third Card: Total Reviews Written -->
+                    <div class="col-md-4 mb-3">
+                        <div class="card custom-card" style="background-color:#d7ebee;">
+                            <div class="card-body">
+                                <h5 class="card-title">Reviews Written</h5>
+                                <p class="card-text"><strong>{{ profile.user.userprofile.reviews_written }}</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <h3>Bookshelf Stats:</h3>
+                <div id="chart-container" style="width: 400px; height: 400px; display: flex; align-items: stretch; margin-bottom:11px" class="mx-auto">
+                    <canvas id="statusPieChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container mt-5" style="background-color:#d7ebee; margin-bottom: 20px; margin-top: 30px;">
+        <h2>Favorite Books:</h2>
+        <div class="favorite-books-container">
+            <div class="book-container mx-auto">
+                {% for book in user_favorite_books %}
+                    <div class="book">
+                        <div><img class="book-image" src="{{ book.image_local.url }}"></div>
+                        <a href="{% url 'books:book-detail' book.pk %}">
+                            <div class="book-title">{{ book.title }}</div>
+                        </a>
+                        <div class="book-author" sytle="font-family: 'Nunito Sans', sans-serif;">{{ book.author.all|join:", " }}</div>
+                        <div class="book-published-year" sytle="font-family: 'Nunito Sans', sans-serif;">{{ book.publication_year }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+{% endblock content %}

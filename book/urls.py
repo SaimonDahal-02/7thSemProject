@@ -7,7 +7,8 @@ from . views import (
 
                      
     UserProfileView, 
-    UserProfileUpdateView, 
+    UserProfileUpdateView,
+    UserDetailView, 
                      
     BookCreateView, 
     BookUpdateView,
@@ -40,6 +41,7 @@ urlpatterns = [
     
     path('profile/', UserProfileView.as_view(), name="user-profile"),
     path('userprofile/update/', UserProfileUpdateView.as_view(), name='edit-profile'),
+    path('profile/<str:username>/', UserDetailView.as_view(), name='user_detail'),
     
     path('books/<int:book_id>/create_note/', BookNoteCreateView.as_view(), name='create_booknote'),
     path('books/<int:book_id>/update_note/<int:pk>/', BookNoteUpdateView.as_view(), name='update_booknote'),

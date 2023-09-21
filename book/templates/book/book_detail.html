@@ -316,7 +316,8 @@
 						<img src="{% static 'default.jpg' %}" class="rounded-circle profile-picture img-fluid img-thumbnail" alt="Profile Picture">
 					{% endif %}
 					<div class="user-info">
-						<p class="username"><strong>{{ review.user.username }}</strong> <span class="review-date">{{ review.publish }}</span></p>
+						<p class="username"><strong><a href="{% url 'book:user_detail' username=review.user.username %}">{{ review.user.username }}</a></strong>
+							<span class="review-date">{{ review.publish }}</span></p>
 						<p class="review-content">{{ review.content }}</p>
 					</div>
 				</div>

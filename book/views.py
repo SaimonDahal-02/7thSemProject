@@ -16,7 +16,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.utils import timezone
+from django.contrib.auth import get_user_model
 
+User = get_user_model()
 
 from .models import (
     Book, 
@@ -233,6 +235,36 @@ class UserProfileView(LoginRequiredMixin, generic.ListView):
         context['dropped_count'] = dropped_count
         
         context['status_counts'] = f"{reading_count},{completed_count},{dropped_count}"
+        return context
+
+class UserDetailView(generic.DetailView):
+    model = UserProfile
+    template_name = 'book/user_detail.html'
+    context_object_name = 'profile'
+
+    def get_object(self, queryset=None):
+        username = self.kwargs['username']
+        user = get_object_or_404(User, username=username)
+        return user.userprofile
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user_profile = context['profile']
+
+        # Fetch additional data here
+        user_favorite_books = user_profile.favorite.all()
+
+    # Fetch reading, completed, and dropped counts for the user_profile
+        reading_count = BookProgress.objects.filter(user=user_profile.user, status='reading').count()
+        completed_count = BookProgress.objects.filter(user=user_profile.user, status='completed').count()
+        dropped_count = BookProgress.objects.filter(user=user_profile.user, status='dropped').count()
+
+        context['user_favorite_books'] = user_favorite_books
+        context['reading_count'] = reading_count
+        context['completed_count'] = completed_count
+        context['dropped_count'] = dropped_count
+        context['status_counts'] = f"{reading_count},{completed_count},{dropped_count}"
+
         return context
 
 class UserProfileUpdateView(LoginRequiredMixin, generic.UpdateView):
