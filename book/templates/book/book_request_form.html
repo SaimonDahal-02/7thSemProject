@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-
+{% load crispy_forms_tags %}
 {% block content %}
 <h1>Request a Book</h1>
 <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
+    {{ form | crispy }}
     <button type="submit">Submit</button>
 </form>
 <a href="{% url 'books:request_list' %}">Back to Book Requests</a>

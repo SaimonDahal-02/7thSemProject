@@ -57,17 +57,21 @@ class BookForm(forms.ModelForm):
             'publisher',
             'publication_year',
             'image_local',
+            'pdf_file',
             'page_count',
             'language',
         ]
         widgets = {
             'image_local': forms.FileInput(attrs={'accept': 'image/*'}),
+            'pdf_file': forms.FileInput(attrs={'accept': 'application/pdf'}),
         }
         enctype = 'multipart/form-data'
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['image_local'].required = False
+        self.fields['pdf_file'].required = False
+
 
     def save(self, commit=True):
         instance = super(BookForm, self).save(commit=False)

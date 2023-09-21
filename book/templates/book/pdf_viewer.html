@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PDF Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .pdf-container {
+            width: 100%;
+            min-height: 600px;
+        }
+        .page {
+            display: inline-block;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="pdf-container">
+        <div class="page">
+            <!-- This is where PDF.js will render the PDF pages -->
+            <canvas id="pdf-render"></canvas>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <script>
+        // PDF.js configuration
+        const pdfjsLib = window['pdfjs-dist/build/pdf'];
+
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
+
+        // Load and render the PDF
+        const pdfUrl = '{{ book.pdf_file.url }}'; // Replace with the URL to your PDF file
+
+        const loadingTask = pdfjsLib.getDocument(pdfUrl);
+        loadingTask.promise.then(function(pdf) {
+            const pdfViewer = document.querySelector('#pdf-render');
+            for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+                pdf.getPage(pageNumber).then(function(page) {
+                    const viewport = page.getViewport({ scale: 1.5 });
+                    const canvas = document.createElement('canvas');
+                    canvas.style.display = 'block';
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    const context = canvas.getContext('2d');
+                    pdfViewer.appendChild(canvas);
+
+                    page.render({
+                        canvasContext: context,
+                        viewport: viewport
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

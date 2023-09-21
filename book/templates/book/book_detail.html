@@ -162,6 +162,11 @@
 							<h5 class="card-title heading">Description:</h5>
 							<p class="card-text texts" style="text-align: justify;">{{ book.description }}</p>
 						</div>
+						{% if book.pdf_file %}
+						<a href="{{ book.pdf_file.url }}" target="_blank" class="btn btn-primary">Read Book</a>
+						{% else %}
+						<button class="btn btn-secondary" disabled>Read PDF</button>
+						{% endif %}
 					</div>
 				</div>
 				<div class="col-md-4">
@@ -291,6 +296,9 @@
 						{% endwith %}
 					{% else %}
 						<p>Please log in to create/view notes.</p>
+					{% endif %}
+					{% if user.is_reviewer %}
+						<a href="{% url 'book:book-update' pk=book.pk %}" class="btn btn-primary">Update Book</a>
 					{% endif %}
 				</div>
 						

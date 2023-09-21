@@ -67,7 +67,25 @@ class BookListView(generic.ListView):
     template_name = 'book/book_list.html'
     context_object_name = 'books'
     paginate_by = 21
+    
+    def get_queryset(self):
+        # Get the total number of books in the database
+        total_books = Book.objects.count()
 
+        # Initialize an empty list to store unique random indexes
+        random_indexes = []
+
+        # Generate random indexes until we have 21 unique ones
+        while len(random_indexes) < 21:
+            random_index = random.randint(1, total_books)
+            if random_index not in random_indexes:
+                random_indexes.append(random_index)
+
+        # Fetch the books corresponding to the random indexes
+        random_books = Book.objects.filter(pk__in=random_indexes)
+
+        return random_books
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['latest_reviews'] = Review.objects.order_by('-publish')[:5]
@@ -347,9 +365,24 @@ class BookUpdateView(LoginRequiredMixin, generic.UpdateView):
         return reverse_lazy('book:book-detail', args=[self.object.pk])
 
     def form_valid(self, form):
-            # Set the 'image_local' field of the form instance
-            form.instance.image_local = self.request.FILES.get('image_local')
-            return super().form_valid(form)
+        new_image = self.request.FILES.get('image_local')
+        new_pdf = self.request.FILES.get('pdf_file')
+
+        # Set the 'image_local' field of the form instance
+        if new_image:
+            form.instance.image_local = new_image
+        else:
+            existing_book = Book.objects.get(pk=self.object.pk)
+            form.instance.image_local = existing_book.image_local
+
+        # Set the 'pdf_file' field of the form instance
+        if new_pdf:
+            form.instance.pdf_file = new_pdf
+        else:
+            existing_book = Book.objects.get(pk=self.object.pk)
+            form.instance.pdf_file = existing_book.pdf_file
+
+        return super().form_valid(form)
     
     
 class BookNoteCreateView(LoginRequiredMixin, generic.CreateView):
@@ -469,4 +502,12 @@ class NotificationListView(LoginRequiredMixin, generic.ListView):
         # Retrieve and order notifications by creation time (newest first)
         return Notification.objects.all().order_by('-created_at')
 
-    
+class PDFViewerView(generic.TemplateView):
+    template_name = 'book/pdf_viewer.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        book_id = kwargs.get('book_id')
+        book = Book.objects.get(pk=book_id)
+        context['book'] = book
+        return context

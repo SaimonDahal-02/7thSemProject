@@ -25,6 +25,8 @@ from . views import (
     
     NotificationListView,
     
+    PDFViewerView,
+    
     favorite_add, 
     change_role_to_reviewer, 
 )
@@ -57,6 +59,8 @@ urlpatterns = [
     path('reviewer-requests/', ReviewerBookRequestListView.as_view(), name='reviewer_request_list'),  
     
     path('notifications/', NotificationListView.as_view(), name='notification_list'),
+    
+    path('pdf_viewer/<int:book_id>/', PDFViewerView.as_view(), name='pdf_viewer'),
     # path('review/edit/<int:review_id>/', edit_review, name='edit_review'),
     # path('review/delete/<int:review_id>/', delete_review, name='delete_review'),
 ]

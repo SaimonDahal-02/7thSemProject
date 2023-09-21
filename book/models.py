@@ -44,6 +44,7 @@ class Book(models.Model):
     genres = models.ManyToManyField("Genre", related_name='books', blank=True)
     
     image_local = models.ImageField(upload_to='books/', blank=True, null=True)
+    pdf_file = models.FileField(upload_to='pdfs/', blank=True, null=True)
     
     author = models.ManyToManyField("Author", blank=True, related_name="book_authors")
         

@@ -1,30 +1,32 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Book Requests</h1>
-{% for request in book_requests %}
-    {% if request.status == 'denied' and request.denial_message %}
-        <div class="denial-message">
-            {{ request.denial_message }}
-        </div>
-    {% endif %}
-    {% if request.status == 'approved' and request.approval_message %}
-        <div class="approval-message">
-            {{ request.approval_message }}
-        </div>
-    {% endif %}
-{% endfor %}
-<ul>
+<div class="container">
+    <h1>Book Requests</h1>
     {% for request in book_requests %}
-        {% if request.status == 'pending' %}
-            <li>
-                {{ request.title }} by {{ request.author }}
-            </li>
+        {% if request.status == 'denied' and request.denial_message %}
+            <div class="alert alert-danger">
+                {{ request.denial_message }}
+            </div>
         {% endif %}
-    {% empty %}
-        <li>No pending book requests.</li>
+        {% if request.status == 'approved' and request.approval_message %}
+            <div class="alert alert-success">
+                {{ request.approval_message }}
+            </div>
+        {% endif %}
     {% endfor %}
-</ul>
+    <ul class="list-group mt-4">
+        {% for request in book_requests %}
+            {% if request.status == 'pending' %}
+                <li class="list-group-item">
+                    {{ request.title }} by {{ request.author }}
+                </li>
+            {% endif %}
+        {% empty %}
+            <li class="list-group-item">No pending book requests.</li>
+        {% endfor %}
+    </ul>
 
-<a href="{% url 'book:request_form' %}">Request a Book</a>
+    <a href="{% url 'book:request_form' %}" class="btn btn-primary mt-3">Request a Book</a>
+</div>
 {% endblock %}
