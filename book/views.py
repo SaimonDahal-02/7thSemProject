@@ -348,13 +348,13 @@ class BookCreateView(LoginRequiredMixin, generic.CreateView):
             if existing_book:
                 # Redirect the user to the existing book's detail page
                 return redirect('book:book-detail', pk=existing_book.pk)
-        else:
+        
 # If title or author is None or a matching book doesn't exist, create a new book
-            form.instance.image_local = self.request.FILES.get('image_local')
-            response = super().form_valid(form)
-            # Create a notification for the newly created book
-            Notification.objects.create(book=self.object)
-            return response
+        form.instance.image_local = self.request.FILES.get('image_local')
+        response = super().form_valid(form)
+        # Create a notification for the newly created book
+        Notification.objects.create(book=self.object)
+        return response
 
 class BookUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = Book

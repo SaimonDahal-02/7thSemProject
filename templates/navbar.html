@@ -17,12 +17,8 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
             <a href="{% url 'books:book-list' %}" class="navbar-brand">
-                Book Website
+                BookLab
             </a>
-            <form  class ="d-flex" method="GET" action="{% url 'books:book-search' %}">
-                <input class="form-control me-2" type="search" name="search_query" placeholder="Search by author or title">
-                <button class="btn btn-outline-light" type="submit">Search</button>
-            </form>
             <a href="{% url 'books:book-shelf' %}" class="navbar-brand">
               BookShelf
             </a>
@@ -35,6 +31,10 @@
               Book Notes
             </a>
             <a href="{% url 'books:notification_list' %}" class="navbar-brand">Notifications</a>
+            <form  class ="d-flex" method="GET" action="{% url 'books:book-search' %}">
+              <input class="form-control me-2" type="search" name="search_query" placeholder="Search by author or title">
+              <button class="btn btn-outline-light" type="submit">Search</button>
+          </form>
             <ul class="navbar-nav ms-auto">
                 {% if request.user.is_authenticated %}
                 <li class="nav-item dropdown">
