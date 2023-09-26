@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Recommended Books</h1>
+  <ul>
+    {% for book in books %}
+      <li>
+        <h2><a href="{% url 'books:book-detail' book.id %}">{{ book.title }}</a></h2>
+        <p>Genres: {{ book.genres.all|join:", " }}</p>
+      </li>
+    {% empty %}
+      <li>No recommendations at this time.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

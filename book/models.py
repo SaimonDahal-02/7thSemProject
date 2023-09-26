@@ -161,11 +161,55 @@ class Notification(models.Model):
     def __str__(self):
         return f"New book added: {self.book.title}"
     
-
+class UserGenre(models.Model):
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+    score = models.IntegerField(default=0)
     
+class UserAuthor(models.Model):
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    score = models.IntegerField(default=0)
+
+def update_genre_scores(user, book, action):
+    # Get the genres of the book
+    genres = book.genres.all()
+
+    # Get or create the UserGenre objects for the user and genres
+    user_genres = [UserGenre.objects.get_or_create(user=user, genre=genre)[0] for genre in genres]
+
+    # Update the scores based on the action
+    if action == 'add':
+        for user_genre in user_genres:
+            user_genre.score += 10
+            user_genre.save()
+    elif action == 'remove':
+        for user_genre in user_genres:
+            user_genre.score -= 10
+            user_genre.save()
+
+def update_author_scores(user, book, action):
+    # Get the authors of the book
+    authors = book.author.all()
+
+    # Get or create the UserAuthor objects for the user and authors
+    user_authors = [UserAuthor.objects.get_or_create(user=user, author=author)[0] for author in authors]
+
+    # Update the scores based on the action
+    if action == 'add':
+        for user_author in user_authors:
+            user_author.score += 10
+            user_author.save()
+    elif action == 'remove':
+        for user_author in user_authors:
+            user_author.score -= 10
+            user_author.save()
+
+
 def post_user_created_signal(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance)
 
 
 post_save.connect(post_user_created_signal, sender=User)
+

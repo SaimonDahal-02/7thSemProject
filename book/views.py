@@ -9,7 +9,7 @@ from django.urls import reverse_lazy
 from django.views import generic
 from django.views.generic.edit import FormView
 from django.contrib.auth.models import User
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.http import JsonResponse
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
@@ -31,6 +31,10 @@ from .models import (
     BookProgress, 
     BookNote,
     Notification,
+    UserGenre,
+    UserAuthor,
+    update_genre_scores,
+    update_author_scores,
 )
 from .forms import (
     CustomUserCreationForm, 
@@ -333,9 +337,13 @@ def favorite_add(request, id):
     if book.favorites.filter(id=user_profile.pk).exists():
         book.favorites.remove(user_profile)
         is_favorite = False
+        update_genre_scores(user_profile, book, 'remove')
+        update_author_scores(user_profile, book, 'remove')
     else:
         book.favorites.add(user_profile)
         is_favorite=True
+        update_genre_scores(user_profile, book, 'add')
+        update_author_scores(user_profile, book, 'add')
         
     return JsonResponse({"is_favorite": is_favorite})
 
@@ -539,3 +547,30 @@ class PDFViewerView(generic.TemplateView):
         book = Book.objects.get(pk=book_id)
         context['book'] = book
         return context
+    
+class RecommendBooksView(generic.ListView):
+    template_name = 'book/recommendations.html'
+    context_object_name = 'books'
+
+    def get_queryset(self):
+        # Get the logged-in user
+        user = UserProfile.objects.get(user=self.request.user)
+
+        # Get the user's genre and author scores
+        user_genre_scores = UserGenre.objects.filter(user=user).order_by('-score')
+        user_author_scores = UserAuthor.objects.filter(user=user).order_by('-score')
+
+        # Get the genres and authors with the highest scores
+        top_genres = [ug.genre for ug in user_genre_scores[:5]]
+        top_authors = [ua.author for ua in user_author_scores[:5]]
+
+        # Get all books in these genres or by these authors
+        books = Book.objects.filter(Q(genres__in=top_genres) | Q(author__in=top_authors))
+
+        # Order the books by the number of matching genres and authors with high scores
+        recommended_books = books.annotate(
+            num_matching_genres=Count('genres', filter=Q(genres__in=top_genres)),
+            num_matching_authors=Count('author', filter=Q(author__in=top_authors))
+        ).order_by('-num_matching_genres', '-num_matching_authors')
+
+        return recommended_books
