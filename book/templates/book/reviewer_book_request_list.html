@@ -1,9 +1,18 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
-    <h1>Review Book Requests</h1>
-
+<style>
+    h2{
+        font-family: 'Leckerli One', cursive;
+    }
+    h5{
+        font-family: 'Mooli', sans-serif;
+    }
+    p{
+        font-family: 'Nunito Sans', sans-serif;
+    }
+</style>
+<div class="container mt-2">
     {% if messages %}
         <ul class="messages">
             {% for message in messages %}
@@ -11,32 +20,53 @@
             {% endfor %}
         </ul>
     {% endif %}
+    <div class="row mt-3">
+        <div class="col-md-12 mt-2">
+            <h2>Book Requests</h2>
+            {% if book_requests %}
+                {% for request in book_requests %}
+                    <div class="card mb-3" style="background: linear-gradient(45deg, #f8b195, #f67280);">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="card-title"><strong>{{ request.title }}</strong> by {{ request.author }}</h5>
+                                    <p class="card-text">Requested by: {{ request.user.username }}</p>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <form method="post" action="{% url 'book:reviewer_request_list' %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="request_id" value="{{ request.id }}">
+                                        <input type="hidden" name="action" value="approve">
+                                        <button type="submit" class="btn btn-success btn-lg" name="approve">Approve</button>
+                                    </form>
+                                    <form method="post" action="{% url 'book:reviewer_request_list' %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="request_id" value="{{ request.id }}">
+                                        <input type="hidden" name="action" value="deny">
+                                        <button type="submit" class="btn btn-danger btn-lg" name="deny">Deny</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-    <ul class="list-group mt-4">
-        {% for request in book_requests %}
-            <li class="list-group-item">
-                {{ request.title }} by {{ request.author }}
-                Requested by: {{ request.user.username }}
-                <form method="post" action="{% url 'book:reviewer_request_list' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="request_id" value="{{ request.id }}">
-                    <input type="hidden" name="action" value="approve"> {# Add this hidden field for approval #}
-                    <button type="submit" class="btn btn-success" name="approve">Approve</button> {# Add the name attribute #}
-                </form>
-                <form method="post" action="{% url 'book:reviewer_request_list' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="request_id" value="{{ request.id }}">
-                    <input type="hidden" name="action" value="deny"> {# Add this hidden field for denial #}
-                    <button type="submit" class="btn btn-danger" name="deny">Deny</button> {# Add the name attribute #}
-                </form>
-            </li>
-        {% empty %}
-            <li class="list-group-item">No pending book requests.</li>
-        {% endfor %}
-    </ul>
-
+                {% endfor %}
+            {% else %}
+                <div class="card mb-3" style="background: linear-gradient(45deg, #f8b195, #f67280);">
+                    <div class="card-body">
+                        <div class="text-center">
+                            <h5 class="card-title">No book requests found</h5>
+                            <p class="card-text">There are currently no pending book requests.</p>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
     {% if user.is_reviewer %}
-        <a href="{% url 'books:add_book' %}" class="btn btn-primary mt-3">Add a Book</a>
+        <div class="text-center mt-3">
+            <a href="{% url 'books:add_book' %}" class="btn btn-primary btn-lg">Add a Book</a>
+        </div>
     {% endif %}
 </div>
 {% endblock %}

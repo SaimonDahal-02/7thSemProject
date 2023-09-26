@@ -17,6 +17,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.utils import timezone
 from django.contrib.auth import get_user_model
+from django.core import serializers
 
 User = get_user_model()
 
@@ -61,7 +62,36 @@ class BookSearchView(generic.ListView):
             return Book.objects.filter(Q(title__icontains=query) | Q(author__name__icontains=query))
         return Book.objects.none()
         
-    
+def books_api(request):
+    genre_id = request.GET.get('genre')
+
+    if genre_id:
+        books = Book.objects.filter(genres__id=genre_id)
+    else:
+        total_books = Book.objects.count()
+        if total_books <= 21:
+            books = Book.objects.all()
+        else:
+            random_indexes = random.sample(range(1, total_books + 1), 21)
+            books = Book.objects.filter(pk__in=random_indexes)
+
+    # Serialize the books to a list of dictionaries
+    book_list = []
+    for book in books:
+        book_list.append({
+            'pk': book.pk,
+            'title': book.title,
+            'publisher': book.publisher,
+            'publication_year': book.publication_year,
+            'image_local_url': request.build_absolute_uri(book.image_local.url),
+            'author': [author.name for author in book.author.all()],
+            'book_detail_url': reverse('books:book-detail', args=[book.pk])
+        })
+
+    # Return the data as a JsonResponse
+    return JsonResponse(book_list, safe=False)
+
+
 class BookListView(generic.ListView):
     model = Book
     template_name = 'book/book_list.html'
@@ -69,34 +99,32 @@ class BookListView(generic.ListView):
     paginate_by = 21
     
     def get_queryset(self):
-        # Get the total number of books in the database
+    # Get the total number of books in the database
+        genre_id = self.request.GET.get('genre')
+        if genre_id:
+            return Book.objects.filter(genres__id=genre_id)
+
+        # If no genre is selected, return random books
         total_books = Book.objects.count()
 
-        # Initialize an empty list to store unique random indexes
-        random_indexes = []
+        # If there are fewer than 21 books, return all of them
+        if total_books <= 21:
+            return Book.objects.all()
 
-        # Generate random indexes until we have 21 unique ones
-        while len(random_indexes) < 21:
-            random_index = random.randint(1, total_books)
-            if random_index not in random_indexes:
-                random_indexes.append(random_index)
+        # Otherwise, generate 21 unique random indexes
+        random_indexes = random.sample(range(1, total_books + 1), 21)
 
         # Fetch the books corresponding to the random indexes
         random_books = Book.objects.filter(pk__in=random_indexes)
 
         return random_books
+
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['latest_reviews'] = Review.objects.order_by('-publish')[:5]
         
-        all_genres = Genre.objects.all()
-        random_genres = random.sample(list(all_genres), 5)
-        genre_books = {} 
-        for genre in random_genres:
-            genre_books[genre] = Book.objects.filter(genres=genre)[:10]
-
-        context['genre_books'] = genre_books
+        context['all_genres'] = Genre.objects.all()
         return context
 
 class BookActionMixin:

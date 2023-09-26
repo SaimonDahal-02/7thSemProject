@@ -2,37 +2,83 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Search Results</title>
-</head>
-<body>
+<style>
+    .container{
+        padding-bottom: 20px; 
+    }
+    h2{
+        color: #1b1818;
+        font-family: 'Leckerli One', cursive;
+    }
+    .card-title{
+        font-family: "Dancing Script", cursive;
+    }
+    p{
+        font-family: "Mooli", cursive;
+    }
+    .link-no-decoration {
+        text-decoration: none;
+        color: black;
+    }
+    .link-no-decoration:hover {
+        text-decoration: underline;
+        color: black;
+    }
+    .btn-primary {
+        background-color: #f67280;
+        border-color: #f67280;
+        display: block;
+        width: 200px;
+        margin: 0 auto;
+        transition: background-color 0.5s ease; /* Smooth transition */
+    }
     
-    {% if books %}
-        <ul>
-            {% for book in books %}
-            <div class="item">
-                <a href="{% url 'books:book-detail' book.pk %}"><h2>{{ book.title }}</h2></a>
-                <img src="{{ book.image_local.url }}" alt="{{ book.title }}">
-                <p><span class="label">ISBN:</span> {{ book.isbn }}</p>
-                <p>{{book.page_count}}</p>
-                <p>{{book.publication_year}}</p>
-                <p>{{book.description}}</p>
-                <p><span class="label">Genres:</span></p>
-				{% for genre in book.genres.all %}
-					{{ genre.name }}{% if not forloop.last %}, {% endif %}
-				{% endfor %}
-				</p>
-            </div>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No results found.</p>
+    .btn-primary:hover {
+        color: #333;
+        border: none;
+        background-color: #f8b195;
+        box-shadow: 0 0 10px #f67280; /* Change color on hover */
+    }
+</style>
+<body>
+    <div class="container mt-3">
+        <h2>Search Results</h2>
+        <div class="row" style="background: linear-gradient(to right, #add8e6, #c8d5d6); border-radius: 15px;">
+        <div class="col-md-12 mt-2">
+            {% if books %}
+                {% for book in books %}
+                <div class="row mb-4 mt-4">
+                    <div class="col-md-2 text-center">
+                        <img src="{{ book.image_local.url }}" alt="{{ book.title }}" class="img-fluid" style="max-height: 220px;">
+                    </div>
+                    <div class="col-md-10">
+                        <div class="d-flex justify-content-start align-items-center" style="height: 100%;">
+                            <div>
+                                <a href="{% url 'books:book-detail' book.pk %}" class="link-no-decoration">
+                                    <h3 class="card-title no-hover">{{ book.title }}</h3>
+                                </a>
+                                <p class="card-text"><span class="texts">{{ book.description }}</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr style="border-top: 2px solid #040404; margin-bottom: 15px;">
+                {% endfor %}
+                {% else %}
+    <div style="padding-bottom: 20px;">
+        <p style="text-align: center; font-size: 1.5em; color: #1d0f11;">Oh no, we couldn't find any books!</p>
         {% if user.is_reviewer %}
-            <a href="{% url 'books:add_book' %}">here</a>
+            <a href="{% url 'books:add_book' %}" class="btn btn-primary mt-1" style="display: block; width: 200px; margin: 0 auto 5px auto; transition: box-shadow 0.5s ease;">Add a Book</a>
+        {% else %}
+            <a href="{% url 'book:request_form' %}" class="btn btn-primary mt-1" style="display: block; width: 200px; margin: 0 auto 5px auto; transition: box-shadow 0.5s ease;">Request a Book</a>
         {% endif %}
-    {% endif %}
+    </div>
+{% endif %}
+
+
+            
+        </div>
+    </div>
+    </div>
 </body>
-</html>
 {% endblock content %}

@@ -28,7 +28,8 @@ from . views import (
     PDFViewerView,
     
     favorite_add, 
-    change_role_to_reviewer, 
+    change_role_to_reviewer,
+    books_api, 
 )
 
 app_name = "book"
@@ -61,6 +62,8 @@ urlpatterns = [
     path('notifications/', NotificationListView.as_view(), name='notification_list'),
     
     path('pdf_viewer/<int:book_id>/', PDFViewerView.as_view(), name='pdf_viewer'),
+    
+    path('api/books/', books_api, name='books-api'),
     # path('review/edit/<int:review_id>/', edit_review, name='edit_review'),
     # path('review/delete/<int:review_id>/', delete_review, name='delete_review'),
 ]

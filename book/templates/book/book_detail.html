@@ -27,7 +27,7 @@
 			border: 1px solid #333;
 			padding: 10px;
 			margin-bottom: 10px;
-			background-color: #d7ebee;
+			background: linear-gradient(45deg, #f8b195, #f67280);
 			border-radius: 25px;
 		}
 		
@@ -36,12 +36,13 @@
 			align-items: center;
 		}
 		
-		.profile-picture {
+		.profile-picture1 {
 			width: 80px;
 			height: 80px;
 			border-radius: 50%;
 			background-color: #d7ebee;
-			object-fit: unset;
+			object-fit: cover;
+			object-position: center top;
 			margin-right: 10px;
 			border: none;
 		}
@@ -62,7 +63,7 @@
 		
 		.review-date {
 			font-size: 12px;
-			color: #999;
+			color: #181010;
 			margin-right: auto;
 		}
 		
@@ -93,7 +94,14 @@
 			cursor: pointer;
 			outline: none;
 		}
-		
+		.user-name{
+			color: black;
+			text-decoration: none;
+			font-family: 'Mooli', cursive;
+		}
+		.user-name:hover{
+			text-decoration: underline;
+		}
 	</style>
 	
 	<script>
@@ -153,7 +161,7 @@
 </head>
 <body>
 	<div class="container mt-5">
-		<div class="card" style="background-color: #d7ebee; color: #090909;">
+		<div class="card pb-3" style="background: linear-gradient(45deg, #f8b195, #f67280);">
 			<div class="row no-gutters">
 				<div class="col-md-8">
 					<div class="d-flex flex-column justify-content-center align-items-center h-100">
@@ -167,7 +175,7 @@
 						{% else %}
 						<button class="btn btn-secondary" disabled>Read PDF</button>
 						{% endif %}
-					</div>
+					</div> 
 				</div>
 				<div class="col-md-4">
 					<div class="book-img my-4" style="width: 63%; height: 100%; position: relative; left: 50%; top: 20px; transform: translate(-50%, -20px);">
@@ -179,10 +187,10 @@
 	</div>
 	
 	<div class="container mt-3">
-		<div class="card" style="background-color: #d7ebee; color:#090909;">
+		<div class="card" style="background: linear-gradient(45deg, #f8b195, #f67280);">
 			<div class="row no-gutters">
 				<div class="col-md-6 p-3">
-					<p class="card-text"><strong class="heading">ISBN:</strong>
+					<p class="card-text px-3 py-1 my-3"><strong class="heading">ISBN:</strong>
 						<span class="texts">{% if book.isbn %}
 							{{ book.isbn }}
 						{% else %}
@@ -190,7 +198,7 @@
 						{% endif %}
 						</span>
 					</p>
-					<p class="card-text"><strong class="heading">Publisher:</strong>
+					<p class="card-text px-3 py-1 my-3"><strong class="heading">Publisher:</strong>
 						<span class="texts">{% if book.publisher %}
 							{{ book.publisher }}
 						{% else %}
@@ -198,7 +206,7 @@
 						{% endif %}
 						</span>
 					</p>
-					<p class="card-text"><strong class="heading">Published Year:</strong>
+					<p class="card-text px-3 py-1 my-3"><strong class="heading">Published Year:</strong>
 						<span class="texts">{% if book.publication_year %}
 							{{ book.publication_year }}
 						{% else %}
@@ -206,7 +214,7 @@
 						{% endif %}
 						</span>
 					</p>
-					<p class="card-text"><strong class="heading">Total Pages:</strong>
+					<p class="card-text px-3 py-1 my-3"><strong class="heading">Total Pages:</strong>
 						<span class="texts">{% if book.page_count %}
 							{{ book.page_count }} pages
 						{% else %}
@@ -214,7 +222,7 @@
 						{% endif %}
 						</span>
 					</p>
-					<p class="card-text"><strong class="heading">Authors:</strong>
+					<p class="card-text px-3 py-1 my-3"><strong class="heading">Authors:</strong>
 						<span class="texts">
 							{% if book.author.exists %}
 							{% for author in book.author.all %}
@@ -225,7 +233,7 @@
 						{% endif %}
 						</span>
 					</p>
-					<p class="card-text"><strong class="heading">Language:</strong>
+					<p class="card-text px-3 py-1 my-3"><strong class="heading">Language:</strong>
 						<span class="texts">{% if book.language %}
 							{{ book.language }}
 						{% else %}
@@ -233,7 +241,7 @@
 						{% endif %}
 						</span>
 					</p>
-					<p class="card-title"><strong class="heading">Genres:</strong>
+					<p class="card-title px-3 py-1 my-3"><strong class="heading">Genres:</strong>
 						<span class="texts">
 							{% if book.genres.exists %}
 							{% for genre in book.genres.all %}
@@ -244,14 +252,14 @@
 							{% endif %}
 						</span>
 					</p>	
-					<p class="card-text"><strong class="heading">Completion:</strong>
+					<p class="card-text px-3 py-1 my-3"><strong class="heading">Completion:</strong>
 						<span class="texts">
 						{{ completion_percentage|floatformat:2 }} %
 						</span>
 					</p>				
 					{% if user.is_authenticated %}{% if progress %}
-					<div class="d-flex align-items-center">
-						<p class="mb-0 mr-2"><strong class="heading">Progress:</strong></p>
+					<div class="d-flex align-items-center px-3 py-1 my-3">
+						<p class="mb-0 mr-2"><strong class="heading">Progress:  </strong></p>
 						<span>
 							<form method="post" action="{% url 'book:book-detail' book.id %}">
 								{% csrf_token %}
@@ -314,25 +322,26 @@
 				<button type="submit" class="chat-bubble-button">Submit</button>
 			</div>
 		</form>
-		<div class="review-list">
+		<div class="review-list mt-3">
 			{% for review in book.reviews.all %}
 			<div class="review-item">
 				<div class="user-profile">
 					{% if review.user.userprofile.profile_pic %}
-						<img src="{{ review.user.userprofile.profile_pic.url }}" class="rounded-circle profile-picture img-fluid img-thumbnail" alt="Profile Picture">
+						<img src="{{ review.user.userprofile.profile_pic.url }}" class="rounded-circle profile-picture1 img-fluid img-thumbnail" alt="Profile Picture">
 					{% else %}
-						<img src="{% static 'default.jpg' %}" class="rounded-circle profile-picture img-fluid img-thumbnail" alt="Profile Picture">
+						<img src="{% static 'default.jpg' %}" class="rounded-circle profile-picture1 img-fluid img-thumbnail" alt="Profile Picture">
 					{% endif %}
 					<div class="user-info">
-						<p class="username"><strong><a href="{% url 'book:user_detail' username=review.user.username %}">{{ review.user.username }}</a></strong>
-							<span class="review-date">{{ review.publish }}</span></p>
+						<p class="username"><strong><a href="{% url 'book:user_detail' username=review.user.username %}" class="user-name">{{ review.user.username }}</a></strong>
+							<span class="review-date"> at {{ review.publish }}</span></p>
 						<p class="review-content">{{ review.content }}</p>
 					</div>
 				</div>
 			</div>			
 			{% empty %}
-				<p class="no-reviews-message">No reviews yet.</p>
+				<p class="no-reviews-message" style="font-size: 24px; color: #230a0c; text-align: center; font-family: 'Mooli', cursive;">No reviews yet.</p>
 			{% endfor %}
+
 		</div>
 	</div>
 </body>

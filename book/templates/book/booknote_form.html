@@ -1,13 +1,51 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
 {% block content %}
-<h1>{{ book.title }}</h1>
-<h2>Author: {{ book.author }}</h2>
-<h2>Genre: {{ book.genres.all|join:", " }}</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form | crispy }}
-    <button type="submit">Save</button>
-</form>
-
-{% endblock content %}
+<style>
+  .card{
+    background: linear-gradient(45deg, #f8b195, #f67280)
+  }
+  h1, h2{
+    font-family: 'Leckerli One', cursive;
+  }
+  .form-control {
+    background-color: transparent !important;
+    color:white !important;
+    margin-bottom:15px; /* Increase gap between fields */
+    font-size: 16px; /* Increase input font size */
+    padding: 10px; /* Increase input padding */
+  }
+  
+  .form-control::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: white;
+    opacity: 1; /* Firefox */
+  }
+  
+  .form-control:-ms-input-placeholder { /* Internet Explorer 10-11 */
+    color: white;
+  }
+  
+  .form-control::-ms-input-placeholder { /* Microsoft Edge */
+    color: white;
+  }
+</style>
+  <div class="container py-5">
+    <div class="row">
+      <div class="col-md-6 offset-md-3">
+        <div class="card">
+          <div class="card-header text-center">
+            <h1>{{ book.title }}</h1>
+            <h2>Add Notes</h2>
+          </div>
+          <div class="card-body">
+            <form method="post" enctype="multipart/form-data" class="p-4">
+              {% csrf_token %}
+              {{ form|crispy }}
+              <button type="submit" class="btn btn-primary btn-block">Save</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,156 +1,245 @@
 {% extends "base.html" %}
 
 {% block content %}
-<hr>
-	<style>
-		.book-container {
-			display: flex;
-			flex-wrap: wrap;
-			justify-content: space-between;
-			margin: 20px 0;
-		}
-		
-		.book {
-			width: 30%;
-			margin-bottom: 20px;
-			padding: 20px;
-			border: 1px solid #ccc;
-			border-radius: 5px;
-			box-shadow: 2px 2px 5px #ccc;
-			text-align: center;
-		}
-		
-		.book-title {
-            text-decoration: underline;
-			font-size: 18px;
-			font-weight: bold;
-			margin-bottom: 10px;
-		}
+<style>
+  h2{
+    font-family: 'Leckerli One', cursive;
+  }
+  .book-link {
+    color: black;
+    text-decoration: none;
+  }
+  
+  .book-link:hover {
+    text-decoration: underline;
+  }
+  
+  .dancing-script, h3 {
+    font-family: 'Dancing Script', cursive;
+  }
+  
+  .mooli, span {
+    font-family: 'Mooli', sans-serif;
+  }
+  a{
+    color: #008080;
+    font-size: 18px;
+    text-decoration: none;
+  }
+  a:hover{
+    color: #FF4500;
+  }
+  
+  .book img {
+    width: 100%;
+    height: auto;
+  }
 
-		.book-publisher, .book-published-year {
-			font-size: 16px;
-			margin-bottom: 10px; 
-		}
-		
-		.book-author {
-			font-size: 14px;
-			color: #666;
-		}
-        .genre-list {
-            display: flex;
-            flex-wrap: wrap;
-          }
-          
-          .genre {
-            margin: 20px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-          }
-          
-          .book-row {
-            display: flex;
-            flex-wrap: nowrap;
-            overflow-x: auto;
-            margin-top: 10px;
-          }
-          
-          .book {
-            width: 150px;
-            margin-right: 15px;
-          }
-          
-          .book img {
-            width: 100%;
-            height: auto;
-          }
-          
-          .book-title {
-            font-size: 14px;
-            margin-top: 5px;
-          }
-          
-          .book-author {
-            font-size: 12px;
-            color: #888;
-          }
-	</style>
-  <div class="container">
-    <div class="row">
-        {% for book in books %}
-        <div class="col-md-4">
-            <!-- Display each book -->
-            <div class="book">
-                <div><img class="book-image" src="{{ book.image_local.url }}"></div>
-                <a href="{% url 'books:book-detail' book.pk %}">
-                    <h3 class="book-title">{{ book.title }}</h3>
-                </a>
-                <div class="book-publisher">{{ book.publisher }}</div>
-                <div class="book-published-year">{{ book.publication_year }}</div>
-                <div class="book-author">{{ book.author.all|join:", " }}</div>
-            </div>
-        </div>
-        {% if forloop.counter|divisibleby:3 and not forloop.last %}
-    </div>
-    <div class="row">
-        {% endif %}
-        {% endfor %}
-    </div>
-</div>
+  .book-image {
+    width: 100%;
+    height: auto;
+  }
 
-            <!-- Pagination links -->
-            <div class="pagination">
-                {% if is_paginated %}
-                    <span class="step-links">
-                        {% if page_obj.has_previous %}
-                            <a href="?page=1">&laquo; first</a>
-                            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
-                        {% endif %}
+  .custom-container {
+    max-width: 80%;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .dropdown-btn {
+    position: relative;
+  }
+  
+  .dropdown-container {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: #f9f9f9;
+    min-width: 500px; /* Adjust this value as needed */
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+  }
+  
+  .dropdown-container a {
+    font-family: 'Mooli', cursive;
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+  }
+  .dropdown-container a:hover {
+    text-decoration: underline;
+  }
+  .genre-btn {
+    flex: 1 0 calc(33.33% - 24px); /* This will make 3 items per row */
+  }
+</style>
+<script>
+    $(document).ready(function () {
+     
+        // ...
+        function loadBooks(genreId) {
+          $.ajax({
+            url: '/api/books/',
+            data: {
+              'genre': genreId
+            },
+            dataType: 'json',
+            success: function (data) {
+              // Clear the filtered books container
+              $('#filtered-books-container').empty();
+            
+              // Counter to track when to create a new row
+              var bookCounter = 0;
+              var currentRow = $('<div class="row"></div>');
+              $.each(data, function (index, book) {
+                var bookColumn = $('<div class="col-md-4 d-flex align-items-stretch"></div>');
+                var bookCard = $('<div class="card mb-4 shadow-sm mt-5 m-3 flex-fill"></div>');
+                bookCard.html(
+                  '<div style="overflow: visible; padding: 20px;">' +
+                  '<img class="card-img-top" src="' + book.image_local_url + '" alt="' + book.title + '" style="width: 100%; height: 125%; margin-top: -25%;">' +
+                  '</div>' +
+                  '<div class="card-body text-center">' +
+                  '</div>' // Leave the card body empty for now
+                );
+                var bookDetailLink = $('<a>').attr('href', book.book_detail_url).addClass('book-link');
+                var bookTitle = $('<h4 class="card-title dancing-script">').text(book.title);
+                var publicationYear = $('<p class="card-text mooli">').text(book.publication_year);
+                var author = $('<p class="card-text mooli">').text(book.author.join(", "));
+            
+                bookDetailLink.append(bookTitle);
+                bookCard.find('.card-body').append(bookDetailLink, publicationYear, author);
+            
+                bookColumn.append(bookCard);
+                currentRow.append(bookColumn);
+            
+                bookCounter++;
+            
+                if (bookCounter === 3) {
+                  // Add the current row to the filtered books container
+                  $('#filtered-books-container').append(currentRow);
+            
+                  // Reset the book counter and create a new row
+                  bookCounter = 0;
+                  currentRow = $('<div class="row"></div>');
+                }
+              });
+            
 
-                        <span class="current-page">{{ page_obj.number }}</span>
+              // Check if there's an open row to be closed
+              if (bookCounter > 0) {
+                $('#filtered-books-container').append(currentRow);
+              }
+            }
 
-                        {% if page_obj.has_next %}
-                            <a href="?page={{ page_obj.next_page_number }}">next</a>
-                            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
-                        {% endif %}
-                    </span>
-                {% endif %}
-            </div>
-        </div>
+          });
+        }
+          // Call loadBooks() when a genre button is clicked
+          $('.genre-btn').click(function (e) {
+            e.preventDefault();
+            var genreId = $(this).data('genre');
+            loadBooks(genreId);
+          });
 
-        <div class="random-genres">
-            <h2>Random Genres</h2>
-            <div class="genre-list">
-              {% for genre, books in genre_books.items %}
-                <div class="genre">
-                  <h3>{{ genre.name }}</h3>
-                  <div class="book-row">
-                    {% for book in books %}
-                      <div class="book">
-                        <img src="{{ book.image_local.url }}" alt="{{ book.title }}">
-                        <a href="{% url 'books:book-detail' book.pk %}"><p class="book-title">{{ book.title }}</p></a>
-                        <p class="book-author">{{ book.author.all|join:", " }}</p>
-                      </div>
+          // Call loadBooks() without any arguments to load random books initially
+          loadBooks();
+
+
+    });
+    $(document).ready(function(){
+      $(".dropdown-btn").click(function(){
+          $(".dropdown-container").toggle();
+      });
+      $(".genre-btn").click(function(){
+        $(".dropdown-container").hide();
+    });
+  });
+  
+  
+  
+
+  </script>
+<div class="container custom-container">
+  <div class="row">
+    <!-- Book List -->
+    <div class="col-md-8">
+      <div class="col-12">
+        <div class="row justify-content-between align-items-center">
+            <h2 class="col-auto" style="border-left: 10px solid red; padding-left: 10px;">Books</h2>
+            <div class="dropdown col-auto">
+                <button class="dropdown-btn">Filter by Genre
+                    <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="dropdown-container">
+                    {% for genre in all_genres %}
+                    <a href="#" class="genre-btn" data-genre="{{ genre.id }}">{{ genre.name }}</a>
                     {% endfor %}
-                  </div>
                 </div>
-              {% endfor %}
+            </div>
+        </div>
+        <div id="filtered-books-container" class="row">
+            <!-- Filtered books will be displayed here -->
+        </div>
+    </div>
+    
+    
+    
+    </div>
+    
+
+      <!-- <div class="pagination">
+          {% if is_paginated %}
+              <span class="step-links">
+                  {% if page_obj.has_previous %}
+                      <a href="?page=1">&laquo; first</a>
+                      <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                  {% endif %}
+    
+                  <span class="current-page">{{ page_obj.number }}</span>
+    
+                  {% if page_obj.has_next %}
+                      <a href="?page={{ page_obj.next_page_number }}">next</a>
+                      <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                  {% endif %}
+              </span>
+          {% endif %}
+      </div> -->
+
+    <!-- Latest Reviews -->
+    <div class="col-md-4">
+      <div style="border-left: 10px solid red; padding-left: 10px;">
+        <h2>Latest Reviews</h2>
+      </div>
+      <div style="background: linear-gradient(to right, #add8e6, #c8d5d6); border: 1px solid #add8e6; padding: 10px;"> <!-- Add a box around all reviews -->
+        {% for review in latest_reviews %}
+        <div class="review row">
+          <div class="col-md-4">
+            <img class="book-image" src="{{ review.book.image_local.url }}" alt="{{ review.book.title }}"
+              style="width: 100%;">
+          </div>
+          <div class="col-md-8">
+            <div class="d-flex justify-content-start align-items-center" style="height: 100%;">
+              <div>
+                <h3>{{ review.book.title }}</h3>
+
+                <span>{{ review.content|truncatechars:100 }}</span>
+                {% if review.content|length > 100 %}
+                <a href="{% url 'books:book-detail' review.book.pk %}#review{{ review.pk }}">read more</a>
+                {% endif %}
+              </div>
             </div>
           </div>
-
-        <div class="col-md-4">
-            <h2>Latest Reviews</h2>
-            {% for review in latest_reviews %}
-                <div class="review">
-                    <h3>{{ review.book.title }}</h3>
-                    <img class="book-image" src="{{ review.book.image_local.url }}" alt="{{ review.book.title }}">
-                    <p>{{ review.content|truncatechars:100 }}</p>
-                    <a href="{% url 'books:book-detail' review.book.pk %}#review{{ review.pk }}">[...more]</a>
-                </div>
-            {% endfor %}
         </div>
+        {% if not forloop.last %} <!-- Don't add a line after the last review -->
+        <hr> <!-- Add a horizontal line after each review -->
+        {% endif %}
+        {% endfor %}
+      </div>
     </div>
+    
+
+  </div>
 </div>
+
+
 
 <!-- Your existing code -->
 

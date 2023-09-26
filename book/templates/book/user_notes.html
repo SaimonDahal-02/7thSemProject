@@ -1,15 +1,74 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1>Book Notes</h1>
+<style>
+  h2{
+      text-decoration: underline;
+      font-family: 'Leckerli One', cursive;
+  }
+  .card-title{
+      font-weight: bold;
+      font-family: "Dancing Script", cursive;
+  }
+  strong{
+      font-family: 'Mooli', sans-serif;
+  }
+  .texts{
+  font-family: 'Nunito Sans', sans-serif;
+  }
+  .link-no-decoration {
+      text-decoration: none;
+      color: black;
+  }
+  .link-no-decoration:hover {
+    text-decoration: underline;
+      color: black;
+  }
+  .book-row {
+    border-bottom: 2px solid #040404;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+}
 
-  <ul>
-    {% for booknote in booknotes %}
-      <li>
-        <a href="{% url 'book:view_booknote' book_id=booknote.book.id pk=booknote.id %}">{{ booknote.book.title }}</a>
-      </li>
-    {% empty %}
-      <li>No book notes available.</li>
-    {% endfor %}
-  </ul>
+.book-col {
+    border-right: 2px solid #040404;
+    padding-right: 15px;
+}
+
+</style>
+<div class="container mt-5">
+  <div class="row" style="background: linear-gradient(45deg, #f8b195, #f67280);">
+      <div class="col-md-12 mt-2">
+          <h2>Your Notes</h2>
+          <div class="row">
+              {% for booknote in booknotes %}
+              <div class="col-md-6 mb-4 mt-4 book-col">
+                  <div class="row book-row">
+                      <div class="col-md-6 text-center">
+                          <img src="{{ booknote.book.image_local.url }}" alt="{{ booknote.book.title }}" class="img-fluid" style="max-height: 220px;">
+                      </div>
+                      <div class="col-md-6">
+                          <div class="d-flex justify-content-start align-items-center" style="height: 100%;">
+                              <div>
+                                  <a href="{% url 'book:view_booknote' book_id=booknote.book.id pk=booknote.id %}" class="link-no-decoration">
+                                      <h3 class="card-title no-hover">{{ booknote.book.title }}</h3>
+                                  </a>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              {% if forloop.counter|divisibleby:2 and not forloop.last %}
+              </div><div class="row">
+              {% endif %}
+              {% empty %}
+              <div class="col-md-12">
+                  <p>No book notes available.</p>
+              </div>
+              {% endfor %}
+          </div>
+      </div>
+  </div>
+</div>
+
 {% endblock %}

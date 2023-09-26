@@ -1,7 +1,57 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
+<style>
+    /* Custom linear gradient background color for the container */
+    .container {
+        background: linear-gradient(to right, #add8e6, #c8d5d6);
+        padding-bottom: 20px;
+        border-radius: 15px;
+    }
+    
+
+    /* Custom linear gradient background color for the alerts */
+    .alert-danger {
+        background: linear-gradient(to right, #ff7f7f, #ff9999);
+        border-color: #ff7f7f;
+    }
+    .alert-success {
+        background: linear-gradient(to right, #96e6a1, #d4fc79);
+        border-color: #96e6a1;
+    }
+
+    /* Custom background color for the list items */
+    .list-group-item {
+        background-color: #f8b195;
+        border-color: #f67280;
+        color: #333;
+    }
+
+    /* Custom style for the "Request a Book" button */
+    .btn-primary {
+        background-color: #f67280;
+        border-color: #f67280;
+        display: block;
+        width: 200px;
+        margin: 0 auto;
+        transition: background-color 0.5s ease; /* Smooth transition */
+    }
+    
+    .btn-primary:hover {
+        color: #333;
+        border: none;
+        background-color: #f8b195; /* Change color on hover */
+    }
+    
+
+    /* Custom style for the "Book Requests" heading */
+    h1 {
+        font-family: 'Leckerli One', cursive;
+        text-align: center; /* Center align the heading */
+    }
+</style>
+
+<div class="container mt-3 mb-3">
     <h1>Book Requests</h1>
     {% for request in book_requests %}
         {% if request.status == 'denied' and request.denial_message %}
@@ -19,7 +69,7 @@
         {% for request in book_requests %}
             {% if request.status == 'pending' %}
                 <li class="list-group-item">
-                    {{ request.title }} by {{ request.author }}
+                    {{ request.title }} by {{ request.author }} is pending
                 </li>
             {% endif %}
         {% empty %}
@@ -27,6 +77,6 @@
         {% endfor %}
     </ul>
 
-    <a href="{% url 'book:request_form' %}" class="btn btn-primary mt-3">Request a Book</a>
+    <a href="{% url 'book:request_form' %}" class="btn btn-primary mt-1">Request a Book</a>
 </div>
 {% endblock %}

@@ -1,50 +1,106 @@
 {% load static %} 
 <style>
+  .search-container {
+    position: relative;
+}
     .navbar-dark .navbar-nav .nav-link{
         color: #fff;
     }
-    .profile-picture-container{
-        width: 40px;
-        height: 40px;
-        overflow: hidden;
+    .nav-link, .dropdown-item{
+      font-family: 'Mooli', cursive;
     }
-    .profile-picture{
-        width: 100%;
-        height: auto;
+    .nav-link:hover{
+      text-decoration: underline;
     }
+    .nav-item.dropdown {
+      display: flex;
+      align-items: center;
+    }
+    .nav-link.dropdown-toggle {
+      display: flex;
+      align-items: center;
+    }
+    
+    .large-nav-link{
+      font-size: 1.5em;
+    }
+    .hidden-btn {
+      display: none;
+  }
+  .large-input {
+    font-size: 1.2em; /* Adjust as needed */
+    background-color: transparent !important;
+    border: none;
+    border-bottom: 1px solid;
+    padding-right: 20px;
+    border-radius: 0;
+  }
+  .large-input:focus{
+    outline: none;
+    box-shadow: none;
+  }
+  .search-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2em; /* Adjust as needed */
+}
+li {
+  margin-bottom: 10px; /* Adjust as needed */
+}
+.container-fluid{
+  width: 100%;
+}
+
+
+
 </style>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg">
         <div class="container-fluid">
-            <a href="{% url 'books:book-list' %}" class="navbar-brand">
-                BookLab
-            </a>
-            <a href="{% url 'books:book-shelf' %}" class="navbar-brand">
-              BookShelf
-            </a>
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active large-nav-link" aria-current="page" href="{% url 'books:book-list' %}">BookLab</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active large-nav-link" aria-current="page" href="{% url 'books:book-shelf' %}">BookShelf</a>
+            </li>
+            <li class="nav-item">
               {% if user.is_reviewer %}
-                  <a href="{% url 'books:reviewer_request_list' %}" class="navbar-brand">Reviewer Book Requests</a>
+                  <a class="nav-link active large-nav-link" href="{% url 'books:reviewer_request_list' %}" class="navbar-brand">Reviewer Book Requests</a>
               {% else %}
-                  <a href="{% url 'books:request_list' %}" class="navbar-brand">User Book Requests</a>
+                  <a class="nav-link active large-nav-link" href="{% url 'books:request_list' %}" class="navbar-brand">User Book Requests</a>
               {% endif %}
-            <a class="navbar-brand" href="{% url 'books:booknote_list' %}">
-              Book Notes
-            </a>
-            <a href="{% url 'books:notification_list' %}" class="navbar-brand">Notifications</a>
-            <form  class ="d-flex" method="GET" action="{% url 'books:book-search' %}">
-              <input class="form-control me-2" type="search" name="search_query" placeholder="Search by author or title">
-              <button class="btn btn-outline-light" type="submit">Search</button>
-          </form>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active large-nav-link" href="{% url 'books:booknote_list' %}">
+                Book Notes
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active large-nav-link" href="{% url 'books:notification_list' %}">Notifications</a>
+            </li>
+            </ul>
+
+            <div class="search-container">
+              <form class="d-flex" method="GET" action="{% url 'books:book-search' %}">
+                <input class="form-control me-2 large-input" type="search" name="search_query" placeholder="Search by author or title">
+                <i class="fas fa-search search-icon"></i>
+                <button class="btn btn-outline-light hidden-btn" type="submit">Search</button>
+              </form>
+            </div>
+
             <ul class="navbar-nav ms-auto">
                 {% if request.user.is_authenticated %}
                 <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     {% if user.is_authenticated %}
-                    <div class="profile-picture-container">
+                    <div class="profile-picture-container" style="display: flex; align-items: center;">
                       {% if user.userprofile.profile_pic %}
-                        <img src="{{ user.userprofile.profile_pic.url }}" class="rounded-circle profile-picture img-fluid" alt="Profile Picture">
+                        <img src="{{ user.userprofile.profile_pic.url }}" class="rounded-circle profile-picture img-fluid" style=" width: 50px; height: 50px; object-fit: cover; object-position: center top;" alt="Profile Picture">
                       {% else %}
-                        <img src="{% static 'default.jpg' %}" class="rounded-circle profile-picture img-fluid" alt="Profile Picture">
+                        <img src="{% static 'default.jpg' %}" class="rounded-circle profile-picture img-fluid" style=" width: 50px; height: 50px; object-fit: cover; object-position: center top;" alt="Profile Picture">
                       {% endif %}
                     </div>
                     {% else %}
@@ -52,11 +108,11 @@
                     {% endif %}
                   </a>
                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-                    <li><a class="dropdown-item" href="{% url 'books:user-profile' %}">Profile</a></li>
+                    <li><a class="dropdown-item" href="{% url 'books:user-profile' %}"><i class="fas fa-user"></i>    Profile</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="{% url 'books:edit-profile' %}">Edit Profile</a></li>
+                    <li><a class="dropdown-item" href="{% url 'books:edit-profile' %}"><i class="fas fa-edit"></i>    Edit Profile</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                    <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i>    Logout</a></li>
                   </ul>
                 </li>
                 {% else %}

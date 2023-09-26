@@ -2,24 +2,104 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
+<style>
+
+  .login-card, .signup-card {
+    width: 600px; /* Increase card width */
+    height: 600px; /* Increase card height */
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+    background: linear-gradient(45deg, #f8b195, #f67280); /* Update the gradient colors */
+    background-size: 600% 600%;
+    animation: gradient 12s ease infinite;
+    padding: 20px; /* Add padding to card */
+  }
+  
+  @keyframes gradient {
+    0% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+    100% {background-position: 0% 50%;}
+  }
+  
+  .signup-card {
+    display: flex; /* Enable flexbox for centering text in the second card */
+    justify-content: center; /* Center text horizontally in the second card */
+    align-items: center; /* Center text vertically in the second card */
+    text-align: center; /* Center text left-right in the second card */
+    flex-direction: column; /* Stack elements vertically */
+  }
+  
+  .card-title {
+    font-size: 36px; /* Increase title font size */
+    font-weight: bold;
+    color: white; /* Change the color of the title to white for better visibility on the gradient background */
+    text-align:center; /* Center the title */
+  }
+  
+  .btn-primary, .btn-secondary {
+    background-color: #007bff;
+    border-color: #007bff;
+    width: 100%; /* Make the buttons bigger */
+    color: #fff; /* Change the color of the button text */
+    border-radius: 25px; /* Add rounded corners to the buttons */
+    padding: 15px; /* Add padding to the buttons */
+    font-size: 24px; /* Increase font size of the buttons */
+    transition-duration: 0.4s; /* Add a transition effect when hovering over the buttons */
+}
+
+.form-control {
+   background-color: transparent !important;
+   color:white !important;
+   margin-bottom:30px; /* Increase gap between fields */
+   font-size: 24px; /* Increase input font size */
+   padding: 15px; /* Increase input padding */
+}
+
+.form-control::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+   color: white;
+   opacity: 1; /* Firefox */
+}
+
+.form-control:-ms-input-placeholder { /* Internet Explorer 10-11 */
+   color: white;
+}
+
+.form-control::-ms-input-placeholder { /* Microsoft Edge */
+   color: white;
+}
+.btn-primary:hover, .btn-secondary:hover {
+   background-color: #295ead; /* Change color of button when hovered over */
+   color: white;
+}
+h2{
+
+  font-family: 'Leckerli One', cursive;
+}
+</style>
+  
 <div class="container d-flex justify-content-center align-items-center vh-100">
-  <div class="card login-card">
-    <div class="card-body">
-      <h2 class="card-title">Login</h2>
-      <form method="post">
-        {% csrf_token %}
-        {{ form | crispy }}
-        <button class="btn btn-primary" type="submit">Login</button>
-      </form>
-      <div class="d-flex justify-content-between align-items-center">
-        <p class="card-text mb-0">
-          <a href="{% url 'reset_password' %}">Forgot password?</a>
-        </p>
-        <p class="card-text mb-0">
-          <a href="{% url 'signup' %}">Sign up</a>
-        </p>
-      </div>
-    </div>
-  </div>
+<div class="row">
+<div class="col-md-6 px-0"> <!-- Remove padding from column -->
+<div class="card login-card">
+<div class="card-body" style="margin-top: 85px;">
+<h2 class="card-title" style="color: black;">Login</h2>
+<form method="post" style="text-align:center;"> <!-- Center form elements -->
+{% csrf_token %}
+  {{ form|crispy}}
+<a href="{% url 'reset_password' %}" class="btn btn-link p-0 mb-4" style="color:black;display:block;text-align:center;">Forgot password?</a> <!-- Center forgot password link -->
+<button class="btn btn-primary mb-4 butt" type="submit">Login</button>
+</form>
+</div>
+</div>
+</div>
+<div class="col-md-6 px-0"> <!-- Remove padding from column -->
+<div class="card signup-card">
+<div class="card-body" style="margin-top: 120px;">
+<h2 class="card-title" style="color: black;">New? Join Us!</h2>
+<p style="font-size:24px;"><i>Unlock the world of books with just a few clicks. Register now!</i></p> <!-- Increase paragraph font size -->
+<a href="{% url 'signup' %}" class="btn btn-secondary butt">Sign up</a>
+</div>
+</div>
+</div>
+</div>
 </div>
 {% endblock %}

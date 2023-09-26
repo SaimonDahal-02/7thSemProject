@@ -161,6 +161,8 @@ class Notification(models.Model):
     def __str__(self):
         return f"New book added: {self.book.title}"
     
+
+    
 def post_user_created_signal(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance)

@@ -1,11 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
-<!DOCTYPE html>
-<html>
-<head>
-	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	<style>
 		.notification-box {
 			position: fixed;
@@ -62,6 +57,9 @@
 			text-decoration: none;
 			font-family: 'Dancing Script', cursive;
 		}
+		.book-title:hover{
+			text-decoration: underline;
+		}
 		
 		.book-publisher,
 		.book-published-year,
@@ -84,10 +82,6 @@
 		}
 		.name{
 			font-family: 'Mooli', sans-serif;
-		}
-		.bio{
-			margin-left: 20px;
-
 		}
 		strong{
 			font-family: 'Mooli', sans-serif;
@@ -138,6 +132,12 @@
 		h1{
 			font-family: 'Dancing Script', cursive;
 			margin-left: 10px;
+		}
+		.bio{
+			margin-left: -22px;
+		}
+		.icon-link{
+			margin-right: 10px;
 		}
 		
 	</style>
@@ -229,10 +229,9 @@
 			window.addEventListener("resize", adjustContainerHeight);
 		});
 	</script>
-</head>
 <body>
 	<div class="container mt-5" style="margin-bottom: 40px;">
-		<div class="card border" style="width:1140px; margin-left: -15px; background-color: #d7ebee;">
+		<div class="card border" style="background: linear-gradient(45deg, #f8b195, #f67280);">
 			<h1>Userprofile:</h1>
 			<div class="row no-gutters">
 				<div class="col-md-3">
@@ -241,13 +240,13 @@
 					{% else %}
 						<img src="{% static 'default.jpg' %}" class="img-fluid mb-3 img" alt="Profile Picture">
 					{% endif %}
-					<div style="margin-left: 37px; margin-top: -5px; margin-bottom: 16px">
+					<div class="mb-3" style="margin-left: 39px;">
 						{% if user.userprofile.website_url %}
-							<a href="{{ user.userprofile.website_url }}" class="icon-link mr-2" target="_blank">
+							<a href="{{ user.userprofile.website_url }}" class="icon-link mr-4" target="_blank">
 								<i class="fas fa-globe fa-2x"></i>
 							</a>
 						{% else %}
-							<i class="fas fa-globe dimmed-icon mr-2 fa-2x"></i>
+							<i class="icon-link fas fa-globe dimmed-icon mr-2 fa-2x"></i>
 						{% endif %}
 						
 						{% if user.userprofile.facebook_url %}
@@ -255,23 +254,23 @@
 								<i class="fab fa-facebook fa-2x"></i>
 							</a>
 						{% else %}
-							<i class="fab fa-facebook dimmed-icon mr-2 fa-2x"></i>
+							<i class="icon-link fab fa-facebook dimmed-icon mr-2 fa-2x"></i>
 						{% endif %}
 						
 						{% if user.userprofile.twitter_url %}
-							<a href="{{ user.userprofile.twitter_url }}" class="icon-link mr-2" target="_blank">
+							<a href="{{ user.userprofile.twitter_url }}" class="icon-link mr-3" target="_blank">
 								<i class="fab fa-twitter fa-2x"></i>
 							</a>
 						{% else %}
-							<i class="fab fa-twitter dimmed-icon mr-2 fa-2x"></i>
+							<i class="icon-link fab fa-twitter dimmed-icon mr-2 fa-2x"></i>
 						{% endif %}
 						
 						{% if user.userprofile.instagram_url %}
-							<a href="{{ user.userprofile.instagram_url }}" class="icon-link mr-2" target="_blank">
+							<a href="{{ user.userprofile.instagram_url }}" class="icon-link mr-3" target="_blank">
 								<i class="fab fa-instagram fa-2x"></i>
 							</a>
 						{% else %}
-							<i class="fab fa-instagram dimmed-icon mr-2 fa-2x"></i>
+							<i class="icon-link fab fa-instagram dimmed-icon mr-2 fa-2x"></i>
 						{% endif %}
 					</div>
 					{% if not user.is_reviewer %}
@@ -282,20 +281,24 @@
 				  	{% endif %}
 					<div id="notification" class="notification-box"></div>
 				</div>
-				<div class="col-md-4">
+				<div class="col-md-5">
 					<div class="card-body bio">
 						<p><strong>Name:</strong> <div class="texts">{{ user.username }}</div></p>
 						
 						{% if user.userprofile.sex %}
 							<p><strong>Sex:</strong> <div class="texts">{{ user.userprofile.sex }}</div></p>
+						{% else %}
+							<p><strong>Sex:</strong><div class="texts">...</div></p>
 						{% endif %}
-						
+
 						{% if user.userprofile.favorite_genre %}
 							<p><strong>Favorite Genre:</strong> <div class="texts">{{ user.userprofile.favorite_genre }}</div></p>
+						{% else %}
+							<p><strong>Favorite Genre:</strong><div class="texts">...</div></p>
 						{% endif %}
 					</div>
 				</div>
-				<div class="col-md-3">
+				<div class="col-md-4">
 					<div class="card-body bio">
 						<p><strong>Role:</strong> 
 							<div class="texts">
@@ -306,19 +309,28 @@
 								{% endif %}
 								</div></p>
 						
-						{% if user.userprofile.sex %}
-							<p><strong>Profession:</strong> <div class="texts">{{ user.userprofile.profession }}</div></p>
-						{% endif %}
-						
-						{% if user.userprofile.favorite_genre %}
-							<p><strong>Favorite Author:</strong> <div class="texts">{{ user.userprofile.favorite_author }}</div></p>
-						{% endif %}
+								{% if user.userprofile.profession %}
+								<p><strong>Profession:</strong> <div class="texts">{{ user.userprofile.profession }}</div></p>
+								{% else %}
+									<p><strong>Profession:</strong><div class="texts">...</div></p>
+								{% endif %}
+								
+								{% if user.userprofile.favorite_author %}
+									<p><strong>Favorite Author:</strong> <div class="texts">{{ user.userprofile.favorite_author }}</div></p>
+								{% else %}
+									<p><strong>Favorite Author:</strong><div class="texts">...</div></p>
+								{% endif %}
+							
 					</div>
 				</div>
-				<div class="col-md-8" style="margin-top: -91px; margin-left: 322px;"> <!-- This div covers both the 2nd and 3rd columns -->
+				<div class="col-md-9" style="margin-top: -91px; margin-left: 322px;"> <!-- This div covers both the 2nd and 3rd columns -->
 					<div>
 						<p><strong>Bio:</strong></p>
-						<div class="texts">{{ user.userprofile.bio }}</div>
+						{% if user.userprofile.bio %}
+							<div class="texts">{{user.userprofile.bio }}</div>
+						{% else %}
+							<p><div class="texts">...</div></p>
+						{% endif %}
 						<p></p>
 					</div>
 				</div>
@@ -326,13 +338,13 @@
 		</div>
 	</div>
 	<div class="container mt-5" style="margin-top: 40px;">
-		<div class="row" style="background-color:#d7ebee;">
+		<div class="row" style="background: linear-gradient(45deg, #f8b195, #f67280);">
 			<div class="col-md-12">
 				<h2>Stats:</h2>
 				<div class="row justify-content-center">
 					<!-- First Card: Total Pages Read -->
 					<div class="col-md-4 mb-3">
-						<div class="card custom-card" style="background-color:#d7ebee;">
+						<div class="card custom-card" style="background: transparent;">
 							<div class="card-body">
 								<h5 class="card-title">Pages Read</h5>
 								<p class="card-text"><strong>{{ user.userprofile.total_pages_read }}</strong></p>
@@ -342,7 +354,7 @@
 			
 					<!-- Second Card: Total Books Completed -->
 					<div class="col-md-4 mb-3">
-						<div class="card custom-card" style="background-color: #d7ebee;">
+						<div class="card custom-card" style="background: transparent;">
 							<div class="card-body">
 								<h5 class="card-title">Books Completed</h5>
 								<p class="card-text"><strong>{{ completed_count }}</strong></p>
@@ -352,7 +364,7 @@
 			
 					<!-- Third Card: Total Reviews Written -->
 					<div class="col-md-4 mb-3">
-						<div class="card custom-card" style="background-color:#d7ebee;">
+						<div class="card custom-card" style="background: transparent;">
 							<div class="card-body">
 								<h5 class="card-title">Reviews Written</h5>
 								<p class="card-text"><strong>{{ user.userprofile.reviews_written }}</strong></p>
@@ -367,15 +379,15 @@
 			</div>
 		</div>
 	</div>
-	<div class="container mt-5" style="background-color:#d7ebee; margin-bottom: 20px; margin-top: 30px;">
+	<div class="container mt-5" style="background: linear-gradient(45deg, #f8b195, #f67280); margin-bottom: 20px; margin-top: 30px;">
 		<h2>Favorite Books:</h2>
 		<div class="favorite-books-container">
 			<div class="book-container mx-auto">
 				{% for book in user_favorite_books %}
 					<div class="book">
 						<div><img class="book-image" src="{{ book.image_local.url }}"></div>
-						<a href="{% url 'books:book-detail' book.pk %}">
-							<div class="book-title">{{ book.title }}</div>
+						<a href="{% url 'books:book-detail' book.pk %}" style="text-decoration: none;">
+							<div class="book-title fav-title">{{ book.title }}</div>
 						</a>
 						<div class="book-author" sytle="font-family: 'Nunito Sans', sans-serif;">{{ book.author.all|join:", " }}</div>
 						<div class="book-published-year" sytle="font-family: 'Nunito Sans', sans-serif;">{{ book.publication_year }}</div>
@@ -385,5 +397,5 @@
 		</div>
 	</div>
 </body>
-</html>
+
 {% endblock content %}

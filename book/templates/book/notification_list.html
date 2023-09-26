@@ -1,17 +1,52 @@
 {% extends "base.html" %}
 
 {% block content %}
+<style>
+    h1{
+        font-family: 'Leckerli One', cursive;
+    }
+    .custom-bg{
+        background: linear-gradient(45deg, #f8b195, #f67280)
+    }
+    .custom-bg .list-group.list-group-flush .list-group-item {
+        background: transparent !important;
+    }
+    .list-group-item a {
+        font-size: 30px;
+        font-family: 'Mooli', cursive;
+        text-decoration: none; /* Remove underlines */
+    }
+
+    /* Style the link on hover */
+    .list-group-item a:hover {
+        text-decoration: underline; /* Add underline on hover */
+    }
+    
+    .date{
+        font-family: 'Nunito Sans', sans-serif;
+    }
+</style>
 <div class="container mt-5">
-    <h1 class="mb-4">Notifications</h1>
-    <ul class="list-group">
-        {% for notification in notifications %}
-            <li class="list-group-item">
-                <a href="{{ notification.get_absolute_url }}" class="text-primary">{{ notification }}</a>
-                <span class="text-muted ml-2">{{ notification.created_at }}</span>
-            </li>
-        {% empty %}
-            <li class="list-group-item">No new notifications.</li>
-        {% endfor %}
-    </ul>
+    <div class="card custom-bg">
+        <div class="card-body">
+            <h1 class="mb-4 text-center">Notifications</h1>
+            <ul class="list-group list-group-flush custom-bg-list">
+                {% for notification in notifications %}
+                <li class="list-group-item py-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <a href="{{ notification.get_absolute_url }}" class="text-primary">{{ notification }}</a>
+                            <div class="ml-auto">
+                                <span class="text-muted date">{{ notification.created_at }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                {% empty %}
+                <li class="list-group-item">No new notifications.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
 </div>
 {% endblock %}
